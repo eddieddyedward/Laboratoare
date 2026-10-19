@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CSS_C1</title>
+<style>
+
+        #hd {
+        font-variant: small-caps;
+        color:magenta;
+    }
+     h1{
+        color: blue;
+    background-color: #cccc00;
+    }
+      body {
+    background-color: #ffffcc;
+    }
+.center, p {
+  text-align: center;
+  color: red;
+}
+table, th, td {
+  border: 3px solid green;
+  border-collapse: collapse;
+  padding: 8px;
+}
+caption {
+  color: white;
+  background-color: orange;
+  font-size: xx-large;
+}
+.antet {
+  background-color: magenta;
+  text-align: center;
+  font-weight: bold;
+}
+.restul {
+  background-color: orange;
+}
+
+</style>
+</head>
+<body>
+
+<h1 id="hd">Tabel special</h1>
+<p>Un tabel cu "celule lipite"
+</p> 
+<table style="width:100%">
+<caption>Echipe si hobby-uri</caption>
+  <tr>
+    <th class="antet">Echipa</th>
+	<th class="antet">Nume</th>
+    <th class="antet" colspan="2">Pasiuni</th>
+  </tr>
+  <tr>
+	<td class="antet" rowspan="3">Munte</td>
+    <td class="restul">Popescu</td>
+    <td class="restul">calatorii</td>
+    <td class="restul">filatelie</td>
+  </tr>
+  <tr>
+	
+    <td class="restul">Ionescu</td>
+    <td class="restul">planorism</td>
+    <td class="restul">sah</td>
+  </tr>
+  <tr>
+    <td class="restul">Dormescu</td>
+    <td class="restul">dormit</td>
+    <td class="restul">visat</td>
+  </tr>
+  <tr>
+	<td class="antet" rowspan="4">Mare</td>
+    <td class="restul">Georgescu</td>
+    <td class="restul">plaja</td>
+    <td class="restul">dans</td>
+  </tr>
+  <tr>
+	
+    <td class="restul">Gigescu</td>
+    <td class="restul">surf</td>
+    <td class="restul">samba</td>
+  </tr>
+  <tr>
+	
+    <td class="restul">Mintescu</td>
+    <td class="restul">politica</td>
+    <td class="restul">delicateturi</td>
+  </tr>
+  <tr>
+    <td class="restul">Calatorescu</td>
+    <td class="restul">calatorit</td>
+    <td class="restul">cheltuit</td>
+  </tr>
+
+</table>
+</body>
+</html>
