@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<button onclick = schimbaremaxima()>APASA-MA</button>
+
+<p id="demo" style="background-color:cyan; color:blueviolet" onclick = schimbare1()>Ce paragraf interesant</p>
+
+<p id="intro" style="background-color: brown; color: coral" onclick = schimbare2()>Acesta este un al doilea paragraf, mai interesant</p>
+
+<script>
+    function schimbare1(){
+    var text = prompt("Introduceți noul text al paragrafului:");
+    if (text !== null && text !== "") {
+     document.getElementById("demo").innerHTML = text;
+    }
+}
+
+function schimbare2(){
+    var text = prompt("Introduceți noul text al paragrafului:");
+    if (text !== null && text !== "") {
+     document.getElementById("intro").innerHTML = text;
+    }
+}
+
+function schimbaremaxima() {
+    var copie = document.getElementById("demo").innerHTML;
+    document.getElementById("demo").innerHTML = document.getElementById("intro").innerHTML;
+    document.getElementById("intro").innerHTML = copie;
+
+}
+</script>
+
+</body>
+</html>
