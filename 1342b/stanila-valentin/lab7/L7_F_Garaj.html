@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Garaj - Tablou de obiecte (Local Storage)</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        form { margin-bottom: 10px; padding: 10px; background-color: #f0f0f0; border-radius: 5px; display: inline-block; }
+        label { margin-right: 10px; }
+        #infoGaraj { font-weight: bold; margin-bottom: 15px; color: #333; }
+        table { border-collapse: collapse; width: 800px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #ddd; }
+        .btn-sterge { background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; }
+        .btn-sterge:hover { background-color: #cc0000; }
+    </style>
+    <script>
+        function citesteGaraj() {
+            var date = localStorage.getItem("garaj");
+            if (date) {
+                return JSON.parse(date);
+            } else {
+                return [];
+            }
+        }
+
+        function adaugaMasina() {
+            var masinaNoua = {
+                tip: document.getElementById("tip").value,
+                model: document.getElementById("model").value,
+                culoare: document.getElementById("culoare").value,
+                an: document.getElementById("an").value,
+                combustibil: document.getElementById("combustibil").value,
+                accident: document.getElementById("accident").value
+            };
+
+            var garaj = citesteGaraj();
+            garaj.push(masinaNoua);
+
+            localStorage.setItem("garaj", JSON.stringify(garaj));
+
+            afiseazaTabel();
+            document.getElementById("formGaraj").reset();
+            return false;
+        }
+
+        function stergeMasina(index) {
+            var garaj = citesteGaraj();
+            
+            garaj.splice(index, 1);
+            
+            localStorage.setItem("garaj", JSON.stringify(garaj));
+            
+            afiseazaTabel();
+        }
+
+        function afiseazaTabel() {
+            var garaj = citesteGaraj();
+
+            document.getElementById("infoGaraj").innerHTML = "Mașini în garaj: " + garaj.length;
+            var tabelHTML = "<tr><th>Tip</th><th>Model</th><th>Culoare</th><th>An fabricație</th><th>Combustibil</th><th>Accident</th><th>Acțiune</th></tr>";
+
+            for (var i = 0; i < garaj.length; i++) {
+                tabelHTML += "<tr>";
+                tabelHTML += "<td>" + garaj[i].tip + "</td>";
+                tabelHTML += "<td>" + garaj[i].model + "</td>";
+                tabelHTML += "<td>" + garaj[i].culoare + "</td>";
+                tabelHTML += "<td>" + garaj[i].an + "</td>";
+                tabelHTML += "<td>" + garaj[i].combustibil + "</td>";
+                tabelHTML += "<td>" + garaj[i].accident + "</td>";
+                tabelHTML += "<td><button class='btn-sterge' onclick='stergeMasina(" + i + ")'>Șterge</button></td>";
+                tabelHTML += "</tr>";
+            }
+            document.getElementById("tabelGaraj").innerHTML = tabelHTML;
+        }
+    </script>
+</head>
+<body onload="afiseazaTabel()">
+
+    <h2>Administrare Garaj Auto</h2>
+    <form id="formGaraj" onsubmit="return adaugaMasina()">
+        <label>Tip: <input type="text" id="tip" required></label>
+        <label>Model: <input type="text" id="model" required></label>
+        <label>Culoare: <input type="text" id="culoare" required></label>
+        <label>An fabricație: <input type="number" id="an" required></label>
+        
+        <label>Combustibil: 
+            <select id="combustibil" required>
+                <option value="Benzină">Benzina</option>
+                <option value="Motorină">Motorina</option>
+                <option value="Hibrid">Hibrid</option>
+                <option value="Electric">Electric</option>
+                <option value="GPL">GPL</option>
+            </select>
+        </label>
+
+        <label>Accident: 
+            <select id="accident" required>
+                <option value="NU">NU</option>
+                <option value="DA">DA</option>
+            </select>
+        </label>
+        
+        <button type="submit">Adaugă în garaj</button>
+    </form>
+    <div id="infoGaraj"></div>
+    <table id="tabelGaraj">
+    </table>
+
+</body>
+</html>

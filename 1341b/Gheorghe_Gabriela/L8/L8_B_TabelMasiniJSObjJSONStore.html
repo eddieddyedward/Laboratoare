@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tabel masini</title>
+    <style>
+        table {
+            font-family: Arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #eeeeee;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+        }
+
+        button {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        #mesaj {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Masinile dorite</h1>
+
+<form onsubmit="return adaugaMasina()">
+
+    <input id="marca" placeholder="Marca">
+
+    <input id="model" placeholder="Model">
+
+    <input id="culoare" placeholder="Culoare">
+
+    <input id="anFab" type="number"
+           placeholder="An fabricatie">
+
+    <button type="submit">Adauga masina</button>
+
+</form>
+
+<p id="mesaj"></p>
+
+<table id="tm">
+    <tr>
+        <th>Marca</th>
+        <th>Model</th>
+        <th>Culoare</th>
+        <th>An fabricatie</th>
+    </tr>
+</table>
+
+<script>
+
+var m1 = new masina("Opel", "Zafira", "gri", 2015);
+var m2 = new masina("Seat", "Ibiza", "roz", 2018);
+
+document.getElementById("tm").innerHTML += m1.randNou();
+document.getElementById("tm").innerHTML += m2.randNou();
+
+if (localStorage.getItem("masinaN")) {
+
+    var masinaJSON = localStorage.getItem("masinaN");
+
+    var mNoua = JSON.parse(masinaJSON);
+
+    document.getElementById("tm").innerHTML += mNoua.randNou;
+}
+
+
+function masina(mk, md, cl, an) {
+
+    this.marca = mk;
+    this.model = md;
+    this.culoare = cl;
+    this.anFab = an;
+
+    this.randNou = function() {
+        return "<tr><td>" + this.marca +
+        "</td><td>" + this.model +
+        "</td><td>" + this.culoare +
+        "</td><td>" + this.anFab +
+        "</td></tr>";
+    }
+}
+
+
+function adaugaMasina() {
+
+    var marca = document.getElementById("marca").value.trim();
+    var model = document.getElementById("model").value.trim();
+    var culoare = document.getElementById("culoare").value.trim();
+    var anFab = document.getElementById("anFab").value;
+
+    var mesaj = document.getElementById("mesaj");
+
+    if (marca == "" || model == "" ||
+        culoare == "" || anFab == "") {
+
+        mesaj.innerHTML = "Completati toate campurile!";
+        return false;
+    }
+
+    if (!isNaN(marca) || !isNaN(model) || !isNaN(culoare)) {
+
+        mesaj.innerHTML = "Marca, modelul si culoarea trebuie sa contina text!";
+        return false;
+    }
+
+    anFab = Number(anFab);
+
+    if (!Number.isInteger(anFab) || anFab < 1886 ||
+        anFab > new Date().getFullYear()) {
+
+        mesaj.innerHTML = "Introduceti un an de fabricatie valid!";
+        return false;
+    }
+
+    mesaj.innerHTML = "";
+
+    var mNoua = new masina(marca, model, culoare, anFab);
+
+    document.getElementById("tm").innerHTML += mNoua.randNou();
+
+    mNoua.randNou = mNoua.randNou().toString();
+
+    var myJSON = JSON.stringify(mNoua);
+
+    localStorage.setItem("masinaN", myJSON);
+
+    document.getElementById("marca").value = "";
+    document.getElementById("model").value = "";
+    document.getElementById("culoare").value = "";
+    document.getElementById("anFab").value = "";
+
+    return false;
+}
+// a) MasinaN contine marca, modelul, culoarea si randNou
+// b) Inlocuieste metoda cu un text pentru ca altfel nu ar putea fi salvata
+// c) Scrie randNou, fara paranteze, deoarece cu paranteze s-ar interpreta ca o functie
+// d) Apare ultima masina la reincarcare, spre deosebire de A, unde raman toate
+
+</script>
+
+</body>
+</html>

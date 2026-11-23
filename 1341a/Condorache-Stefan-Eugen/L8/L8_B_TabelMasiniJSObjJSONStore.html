@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 15px;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+form {
+  margin-bottom: 10px;
+}
+
+input {
+  margin-right: 10px;
+}
+
+#mesaj {
+  color: #d93025;
+  font-weight: bold;
+  min-height: 20px;
+}
+</style>
+</head>
+<body>
+<h1>Masinile dorite</h1>
+
+<form id="formMasina" onsubmit="return adaugaMasina()" novalidate>
+  <label for="marca">Marca:</label>
+  <input type="text" id="marca">
+
+  <label for="model">Model:</label>
+  <input type="text" id="model">
+
+  <label for="culoare">Culoare:</label>
+  <input type="text" id="culoare">
+
+  <label for="anFab">An fabricatie:</label>
+  <input type="text" id="anFab">
+
+  <button type="submit">Adauga masina</button>
+</form>
+
+<p id="mesaj"></p>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+</table>
+
+<script>
+var m1 = new masina("Opel", "Zafira", "gri", 2015);
+var m2 = new masina("Seat", "Ibiza", "roz", 2018);
+
+document.getElementById("tm").innerHTML += m1.randNou();
+document.getElementById("tm").innerHTML += m2.randNou();
+
+if (localStorage.masinaN) {
+  var masinaJSON = localStorage.masinaN;
+  var mNoua = JSON.parse(masinaJSON);
+
+  document.getElementById("tm").innerHTML += mNoua.randNou;
+}
+
+function masina(mk, md, cl, an) {
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+  this.randNou = function() {
+    return "<tr><td>" + this.marca + "</td><td>" + this.model +
+           "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+  };
+}
+
+function valideaza(marca, model, culoare, an) {
+  var anulCurent = new Date().getFullYear();
+
+  if (marca.trim() === "") {
+    return "Marca nu poate fi goală sau formată doar din spații.";
+  }
+  if (model.trim() === "") {
+    return "Modelul nu poate fi gol sau format doar din spații.";
+  }
+  if (culoare.trim() === "") {
+    return "Culoarea nu poate fi goală sau formată doar din spații.";
+  }
+
+  var anNumar = Number(an);
+  if (an.trim() === "" || !Number.isInteger(anNumar) || anNumar < 1900 || anNumar > anulCurent) {
+    return "Anul de fabricație trebuie să fie un număr întreg între 1900 și " + anulCurent + ".";
+  }
+
+  return "";
+}
+
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value;
+  var model = document.getElementById("model").value;
+  var culoare = document.getElementById("culoare").value;
+  var an = document.getElementById("anFab").value;
+  var paragrafMesaj = document.getElementById("mesaj");
+
+  var eroare = valideaza(marca, model, culoare, an);
+  if (eroare !== "") {
+    paragrafMesaj.textContent = eroare;
+    return false;
+  }
+
+  paragrafMesaj.textContent = "";
+
+  var mNoua = new masina(marca.trim(), model.trim(), culoare.trim(), Number(an));
+  document.getElementById("tm").innerHTML += mNoua.randNou();
+
+  mNoua.randNou = mNoua.randNou().toString();
+  var myJSON = JSON.stringify(mNoua);
+  localStorage.setItem("masinaN", myJSON);
+
+  document.getElementById("formMasina").reset();
+  return false;
+}
+</script>
+</body>
+</html>
+
+<!--
+Exercițiul 4:
+(a) Cheia "masinaN" din localStorage conține un șir JSON cu cele patru proprietăți
+    ale obiectului mNoua (marca, model, culoare și randNou ca șir HTML), de exemplu:
+    {"marca":"Dacia","model":"Logan","culoare":"alb","randNou":"<tr><td>Dacia</td><td>Logan</td><td>alb</td></tr>"}
+
+(b) JSON.stringify() ignoră metodele (funcțiile) unui obiect și păstrează doar datele.
+    Linia mNoua.randNou = mNoua.randNou().toString(); execută metoda și îi înlocuiește
+    referința cu textul HTML returnat, astfel încât acesta să fie salvat în JSON.
+    Fără această linie, proprietatea randNou ar lipsi din JSON, iar la reîncărcare
+    mNoua.randNou ar fi undefined (în tabel s-ar afișa "undefined").
+
+(c) La reîncărcare, JSON.parse() reconstruiește un obiect simplu în care randNou este
+    o proprietate de tip string (nu o funcție), deci se accesează fără paranteze.
+    Cu paranteze s-ar arunca eroarea TypeError: mNoua.randNou is not a function.
+
+(d) După reîncărcare apare cel mult 1 mașină adăugată (ultima), la fel ca în L8_A,
+    deoarece fiecare adăugare suprascrie aceeași cheie "masinaN" din localStorage
+    (în L8_A se suprascriau cele 3 chei separate: marca, model, culoare).
+-->

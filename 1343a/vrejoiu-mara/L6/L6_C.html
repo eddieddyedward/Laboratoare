@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>L6_C</title>
+</head>
+<body>
+
+    <h1 id="titlu" onclick="changeColor()">Titlu format din cateva cuvinte</h1>
+    <p>Acesta este primul rand.<br>
+    Acesta este al doilea rand.<br>
+    Acesta este al treilea rand.
+    </p>
+
+    <script>
+        title = document.getElementById("titlu");
+
+        function changeColor()
+        {
+            var color = prompt("Introduceti culoarea:", "ex: red");
+
+            if (CSS.supports("color", color))
+            {
+                title.style.color = color;
+            }
+            else alert("Culoare invalida!");
+        }
+    </script>
+
+</body>
+</html>

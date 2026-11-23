@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Masini - abordare cu folosirea de obiecte</title>
+    <script>
+        function init() {
+            afiseaza(localStorage, "mls");
+            afiseaza(sessionStorage, "mss");
+        }
+
+        // ================= MASINA JS =================
+        function loadMjs(){
+            var mJS = {tip : "Dacia", model : "Logan", culoare : "verde", anFab : 2012, accident: "NU"};
+            
+            document.getElementById("mjs").innerHTML = 
+            "<ul>"+
+            "<li>Tip: " + mJS.tip +"</li>" +
+            "<li>Model:  "  + mJS.model +"</li>" +
+            "<li>Culoare:  "  + mJS.culoare + "</li>" +
+            "<li>An fabricatie:  "  + mJS.anFab + "</li>" +
+            "<li>Accident: " + mJS.accident + "</li>" +
+            "</ul>";
+        }
+
+        // ================= FUNCȚII GENERICE (Afișare și Ștergere) =================
+        
+        function afiseaza(storage, elementId){
+            if(storage.masina){
+                var masinaObj = JSON.parse(storage.masina);
+                
+                document.getElementById(elementId).innerHTML = 
+                "<ul>"+
+                "<li>Tip: " + masinaObj.tip +"</li>" +
+                "<li>Model: "  + masinaObj.model +"</li>" +
+                "<li>Culoare: "  + masinaObj.culoare + "</li>" +
+                "<li>An fabricație: "  + masinaObj.anFab + "</li>" +
+                "<li>Accident: " + masinaObj.accident + "</li>" +
+                "</ul>";
+            } else {
+                document.getElementById(elementId).innerHTML = "<p>Nicio mașină salvată</p>";
+            }
+        }
+
+        function sterge(storage, elementId) {
+            storage.removeItem("masina");
+            afiseaza(storage, elementId);
+        }
+
+        // ================= FUNCȚII DE SALVARE SPECIFICE =================
+
+        function salveazaMls(){
+            var masinaL = {
+                tip: document.getElementById("tipLs").value, 
+                model: document.getElementById("modelLs").value, 
+                culoare: document.getElementById("culoareLs").value, 
+                anFab: document.getElementById("anLs").value,
+                accident: document.getElementById("accidentLs").value
+            };
+
+            localStorage.setItem("masina", JSON.stringify(masinaL));
+            afiseaza(localStorage, "mls");
+            
+            return false;
+        }
+
+        function salveazaMss(){
+            var masinaS = {
+                tip: document.getElementById("tipSs").value, 
+                model: document.getElementById("modelSs").value, 
+                culoare: document.getElementById("culoareSs").value, 
+                anFab: document.getElementById("anSs").value,
+                accident: document.getElementById("accidentSs").value
+            };
+
+            sessionStorage.setItem("masina", JSON.stringify(masinaS));
+            afiseaza(sessionStorage, "mss");
+            
+            return false;
+        }
+    </script>
+</head>
+<body onload="init()">
+
+    <div style="background-color:LimeGreen;color:white;font-size:200%" onclick="loadMjs()">
+        <p>Masina JavaScript</p>
+        <div id="mjs"></div>
+    </div>
+
+    <!-- Masina Local Storage -->
+    <div style="background-color:ForestGreen;color:white;font-size:200%">
+        <p>Masina Local Storage</p>
+        
+        <form onsubmit="return salveazaMls()" style="font-size: 50%; margin-bottom: 10px;">
+            <label>Tip: <input type="text" id="tipLs" required></label> 
+            <label>Model: <input type="text" id="modelLs" required></label> 
+            <label>Culoare: <input type="text" id="culoareLs" required></label> 
+            <label>An fabricatie: <input type="number" id="anLs" required></label> 
+            
+            <label>Accident: 
+                <select id="accidentLs" required>
+                    <option value="NU">NU</option>
+                    <option value="DA">DA</option>
+                </select>
+            </label>
+            
+            <button type="submit">Salvează</button>
+            <button type="button" onclick="sterge(localStorage, 'mls')">Șterge</button>
+        </form>
+
+        <div id="mls"></div>
+    </div>
+
+    <!-- Masina Session Storage -->
+    <div style="background-color:SeaGreen;color:white;font-size:200%">
+        <p>Masina Session Storage</p>
+        
+        <form onsubmit="return salveazaMss()" style="font-size: 50%; margin-bottom: 10px;">
+            <label>Tip: <input type="text" id="tipSs" required></label> 
+            <label>Model: <input type="text" id="modelSs" required></label> 
+            <label>Culoare: <input type="text" id="culoareSs" required></label> 
+            <label>An fabricație: <input type="number" id="anSs" required></label> 
+            
+            <label>Accident: 
+                <select id="accidentSs" required>
+                    <option value="NU">NU</option>
+                    <option value="DA">DA</option>
+                </select>
+            </label>
+            
+            <button type="submit">Salvează</button>
+            <button type="button" onclick="sterge(sessionStorage, 'mss')">Șterge</button>
+        </form>
+
+        <div id="mss"></div>
+    </div>
+
+</body>
+</html>

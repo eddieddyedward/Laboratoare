@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Tabel masini cu Validare</title>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        form {
+            background-color: #f2f2f2;
+            padding: 15px;
+            width: 300px;
+            border: 1px solid #ccc;
+        }
+        input {
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        #mesaj {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Masinile dorite</h1>
+
+    <form onsubmit="return adaugaMasina();">
+        <label for="marca">Marcă:</label>
+        <input type="text" id="marca">
+
+        <label for="model">Model:</label>
+        <input type="text" id="model">
+
+        <label for="culoare">Culoare:</label>
+        <input type="text" id="culoare">
+
+        <label for="anFab">An fabricație:</label>
+        <input type="number" id="anFab">
+
+        <input type="submit" value="Adauga masina">
+    </form>
+
+    <p id="mesaj"></p>
+
+    <table id="tm">
+        <tr>
+            <th>Marca</th>
+            <th>Model</th>
+            <th>Culoare</th>
+            <th>An fabricație</th>
+        </tr>
+    </table>
+
+    <script>
+        var m1 = new masina("Opel", "Zafira", "gri", 2015);
+        var m2 = new masina("Seat", "Ibiza", "roz", 2018);
+
+        document.getElementById("tm").innerHTML += m1.randNou(); 
+        document.getElementById("tm").innerHTML += m2.randNou(); 
+
+        if(localStorage.marca) {
+            var mNoua = new masina(
+                localStorage.marca, 
+                localStorage.model, 
+                localStorage.culoare, 
+                localStorage.anFab
+            );
+            document.getElementById("tm").innerHTML += mNoua.randNou();
+        }
+
+        function masina(mk, md, cl, an) {
+            this.marca = mk;
+            this.model = md;
+            this.culoare = cl;
+            this.anFab = an;
+            this.randNou = function() {
+                return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+            };
+        }
+
+        function valideaza(marca, model, culoare, an) {
+            // Verificăm dacă sunt goale sau doar spații
+            if (marca.trim() === "" || model.trim() === "" || culoare.trim() === "") {
+                return "Toate câmpurile (marcă, model, culoare) sunt obligatorii și nu pot fi goale!";
+            }
+
+            // Verificăm anul
+            var anCurent = new Date().getFullYear();
+            var anNumar = Number(an);
+
+            if (isNaN(anNumar) || !Number.isInteger(anNumar) || anNumar < 1900 || anNumar > anCurent) {
+                return "Anul de fabricație trebuie să fie un număr întreg între 1900 și " + anCurent + "!";
+            }
+
+            return ""; // Fără erori
+        }
+
+        function adaugaMasina() {
+            var marca = document.getElementById("marca").value;
+            var model = document.getElementById("model").value;
+            var culoare = document.getElementById("culoare").value;
+            var an = document.getElementById("anFab").value;
+
+            var paragrafMesaj = document.getElementById("mesaj");
+
+            var eroare = valideaza(marca, model, culoare, an);
+
+            if (eroare !== "") {
+                // Dacă există eroare, o afișăm în paragraf și oprim adăugarea
+                paragrafMesaj.innerHTML = eroare;
+                return false; 
+            }
+
+            paragrafMesaj.innerHTML = "";
+
+            var mNoua = new masina(marca, model, culoare, an);
+            document.getElementById("tm").innerHTML += mNoua.randNou(); 
+
+            localStorage.setItem("marca", marca);
+            localStorage.setItem("model", model);
+            localStorage.setItem("culoare", culoare);
+            localStorage.setItem("anFab", an);
+
+            document.querySelector("form").reset();
+
+            return false; 
+        }
+    </script>
+
+</body>
+</html>
+<!--Exercițiul 3: Validarea datelor introduse de utilizator previne introducerea de valori incorecte sau incomplete în Local Storage 
+și asigură integritatea structurii obiectelor afișate în tabel. -->

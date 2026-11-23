@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Tabel masini - Doar Date cu Prototype și Ștergere</title>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        form {
+            background-color: #f2f2f2;
+            padding: 15px;
+            width: 300px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+        input {
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        #mesaj {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .btn-sterge {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        .btn-sterge:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Masinile dorite (Salvare doar date + Prototype)</h1>
+
+    <form onsubmit="return adaugaMasina();">
+        <label for="marca">Marcă:</label>
+        <input type="text" id="marca">
+
+        <label for="model">Model:</label>
+        <input type="text" id="model">
+
+        <label for="culoare">Culoare:</label>
+        <input type="text" id="culoare">
+
+        <label for="anFab">An fabricație:</label>
+        <input type="number" id="anFab">
+
+        <input type="submit" value="Adauga masina">
+    </form>
+
+    <button class="btn-sterge" onclick="stergeTot()">Șterge toate</button>
+
+    <p id="mesaj"></p>
+
+    <table id="tm">
+        <tr>
+            <th>Marca</th>
+            <th>Model</th>
+            <th>Culoare</th>
+            <th>An fabricație</th>
+        </tr>
+    </table>
+
+    <script>
+        var masini2Store = [];
+
+        function masina(mk, md, cl, an){
+            this.marca = mk;
+            this.model = md;
+            this.culoare = cl;
+            this.anFab = an;
+        }
+
+        masina.prototype.randNou = function() {
+            return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+        };
+
+
+
+        document.getElementById("tm").innerHTML += m1.randNou(); 
+        document.getElementById("tm").innerHTML += m2.randNou(); 
+
+        if(localStorage.carsData) {
+            let arrayJSON = localStorage.carsData;
+            var masiniStored = JSON.parse(arrayJSON);
+            
+            for(let i = 0; i < masiniStored.length; i++){
+
+                var mReconstruit = new masina(
+                    masiniStored[i].marca, 
+                    masiniStored[i].model, 
+                    masiniStored[i].culoare, 
+                    masiniStored[i].anFab
+                );
+                
+                document.getElementById("tm").innerHTML += mReconstruit.randNou(); 
+                masini2Store.push(mReconstruit);
+            }
+        }
+
+        function valideaza(marca, model, culoare, an) {
+            if (marca.trim() === "" || model.trim() === "" || culoare.trim() === "") {
+                return "Toate câmpurile (marcă, model, culoare) sunt obligatorii!";
+            }
+
+            var anCurent = new Date().getFullYear();
+            var anNumar = Number(an);
+
+            if (isNaN(anNumar) || !Number.isInteger(anNumar) || anNumar < 1900 || anNumar > anCurent) {
+                return "Anul de fabricație trebuie să fie între 1900 și " + anCurent + "!";
+            }
+
+            return "";
+        }
+
+        function adaugaMasina() {
+            var marca = document.getElementById("marca").value;
+            var model = document.getElementById("model").value;
+            var culoare = document.getElementById("culoare").value;
+            var an = document.getElementById("anFab").value;
+
+            var paragrafMesaj = document.getElementById("mesaj");
+            var eroare = valideaza(marca, model, culoare, an);
+
+            if (eroare !== "") {
+                paragrafMesaj.innerHTML = eroare;
+                return false; 
+            }
+
+            paragrafMesaj.innerHTML = ""; 
+
+            var mNoua = new masina(marca, model, culoare, an);
+            document.getElementById("tm").innerHTML += mNoua.randNou(); 
+
+            masini2Store.push(mNoua);
+            localStorage.setItem("carsData", JSON.stringify(masini2Store));
+
+            document.querySelector("form").reset();
+            return false;
+        }
+
+        function stergeTot() {
+            localStorage.removeItem("carsData");
+            masini2Store = [];
+            
+            document.getElementById("tm").innerHTML = 
+                "<tr>" +
+                "<th>Marca</th>" +
+                "<th>Model</th>" +
+                "<th>Culoare</th>" +
+                "<th>An fabricație</th>" +
+                "</tr>";
+
+            document.getElementById("tm").innerHTML += m1.randNou();
+            document.getElementById("tm").innerHTML += m2.randNou();
+        }
+    </script>
+
+</body>
+</html>

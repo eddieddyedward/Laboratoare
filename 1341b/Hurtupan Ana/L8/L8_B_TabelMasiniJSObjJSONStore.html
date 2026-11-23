@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+<h1 > Masinile dorite </h1>
+
+<form onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+</form>
+
+<p id="mesaj" style="color: red; font-weight: bold;"></p>
+
+<table id="tm">
+<tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+</table>
+
+<script>
+function masina(mk, md, cl, an){
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+  this.randNou = function() {
+    return "<tr><td>" + this.marca +"</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+  }
+}
+
+var m1 = new masina("Opel", "Zafira", "gri", 2015);
+var m2 = new masina("Seat", "Ibiza", "roz", 2018);
+
+document.getElementById("tm").innerHTML += m1.randNou(); 
+document.getElementById("tm").innerHTML += m2.randNou(); 
+
+
+if(localStorage.masinaN) {
+  var masinaJSON = localStorage.masinaN;
+  var mNoua = JSON.parse(masinaJSON);
+
+  document.getElementById("tm").innerHTML += mNoua.randNou; 
+}
+
+// Functia de validare
+function valideaza(marca, model, culoare, an) {
+  if (marca.trim() === "" || model.trim() === "" || culoare.trim() === "") {
+    return "Marca, modelul si culoarea nu pot fi goale sau doar spatii.";
+  }
+  
+  var anCurent = new Date().getFullYear();
+  var anNumar = Number(an);
+  
+  if (!Number.isInteger(anNumar) || anNumar < 1900 || anNumar > anCurent) {
+    return "Anul trebuie sa fie numar intreg intre 1900 si " + anCurent + ".";
+  }
+  
+  return ""; 
+}
+
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value;
+  var model = document.getElementById("model").value;
+  var culoare = document.getElementById("culoare").value;
+  var an = document.getElementById("anFab").value;
+
+  var eroare = valideaza(marca, model, culoare, an);
+  if (eroare !== "") {
+    document.getElementById("mesaj").innerHTML = eroare;
+    return false; // oprim adaugarea
+  } else {
+    document.getElementById("mesaj").innerHTML = "";
+  }
+
+  var mNoua = new masina(marca, model, culoare, an);
+
+  document.getElementById("tm").innerHTML += mNoua.randNou(); 
+
+  mNoua.randNou = mNoua.randNou().toString();
+  var myJSON = JSON.stringify(mNoua);
+
+  localStorage.setItem("masinaN", myJSON);
+
+  return false; // Prevenim reload-ul paginii
+}
+</script>
+
+<!-- 
+a) Ce contine cheia masinaN dupa adaugarea unei masini?
+Contine un string JSON cu datele ultimei masini bagate. {marca, modelul, culoarea, anul, "randNou"} randNou: "<tr><td>Dacia</td><td>Logan</td><td>verde</td><td>2001</td></tr>"
+
+b) De ce, inainte de JSON.stringify, inlocuim metoda cu un text si ce s-ar intampla altfel?
+JSON.stringify nu suporta functii si le sterge pur si simplu cand transforma obiectul in text. Daca nu puneam linia aia prin care convertim rezultatul functiei randNou() intr-un text simplu, 
+in JSON-ul nostru nu se mai salva deloc randul de tabel.
+
+c) De ce la reincarcare se scrie mNoua.randNou, fara paranteze?
+ Pentru ca JSON.parse intoarce un obiect simplu,dar randNou este acum un text (string). 
+ Nu mai e o functie care trebuie sa faca ceva (o metoda), deci nu putem sa punem () la un text.
+ 
+d) Cate masini adaugate apar dupa reincarcare, comparativ cu L8_A?
+ Doar una singura. Cheia "masinaN" ia de fiecare data un singur JSON, 
+ asa ca de fiecare data cand adaugam ceva, suprascriem masina dinainte.
+-->
+</body>
+</html>

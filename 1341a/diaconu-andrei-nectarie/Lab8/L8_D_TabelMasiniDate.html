@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini (Bonus)</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+<h1> Masinile dorite (Doar date) </h1>
+
+<!-- Lasa formularul asa, fara min sau max, pentru a lasa JavaScript-ul sa afiseze eroarea pe ecran -->
+<form onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+</form>
+
+<br>
+<button type="button" onclick="stergeToate()" style="background-color: #ff6666; color: white; padding: 5px 10px;">Sterge toate</button>
+
+<!-- Aici va aparea mesajul de eroare; m-am asigurat ca fontul este bolduit ca sa iasa in evidenta -->
+<p id="mesaj" style="color: red; font-weight: bold;"></p>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+</table>
+
+<script>
+masina.prototype.randNou = function() {
+  return "<tr><td>" + this.marca +"</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+};
+
+function masina(mk, md, cl, an) {
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+}
+
+var masini2Store = [];
+
+if (localStorage.carsDataArray) {
+  var arrayJSON = localStorage.carsDataArray;
+  var masiniStored = JSON.parse(arrayJSON);
+  
+  for (var i = 0; i < masiniStored.length; i++) {
+    var m = new masina(masiniStored[i].marca, masiniStored[i].model, masiniStored[i].culoare, masiniStored[i].anFab);
+    document.getElementById("tm").innerHTML += m.randNou();
+    masini2Store.push(m);
+  }
+}
+
+function valideaza(marca, model, culoare, an) {
+  if (marca.trim() === "" || model.trim() === "" || culoare.trim() === "") {
+    return "Campurile text nu pot fi goale sau formate doar din spatii.";
+  }
+  
+  an = Number(an);
+  var anCurent = new Date().getFullYear();
+  
+  if (!Number.isInteger(an) || an < 1900 || an > anCurent) {
+    return "Eroare: Anul trebuie sa fie un numar intreg intre 1900 si " + anCurent + ".";
+  }
+  
+  return "";
+}
+
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value;
+  var model = document.getElementById("model").value;
+  var culoare = document.getElementById("culoare").value;
+  var an = document.getElementById("anFab").value;
+
+  var eroare = valideaza(marca, model, culoare, an);
+  if (eroare !== "") {
+    // Afisam eroarea setand direct continutul paragrafului cu id-ul "mesaj"
+    document.getElementById("mesaj").innerHTML = eroare;
+    return false;
+  }
+  
+  // Daca nu este nicio eroare, stergem textul ca sa dispara mesajul vechi
+  document.getElementById("mesaj").innerHTML = "";
+
+  var mNoua = new masina(marca, model, culoare, an);
+  document.getElementById("tm").innerHTML += mNoua.randNou(); 
+
+  masini2Store.push(mNoua);
+  
+  var myJSON = JSON.stringify(masini2Store);
+  localStorage.setItem("carsDataArray", myJSON);
+  
+  return false;
+}
+
+function stergeToate() {
+  localStorage.removeItem("carsDataArray");
+  masini2Store = [];
+  document.getElementById("tm").innerHTML = "<tr><th>Marca</th><th>Model</th><th>Culoare</th><th>An fabricatie</th></tr>";
+  // Curatam si mesajul la stergerea tuturor datelor
+  document.getElementById("mesaj").innerHTML = "";
+}
+</script>
+
+<!--
+  Explicatii:
+  Daca pui atribute HTML gen min="1900" pe campul de input, browserul blocheaza complet trimiterea formularului (onsubmit) si iti arata bula lui default ("Please select a value..."), motiv pentru care functia JavaScript nici nu se mai executa ca sa iti puna mesajul rosu in pagina.
+  Pentru a forta eroarea in modul dorit, lasam doar atributul "required" care asigura ca nu se trimite gol, iar restul validarii matematice le delegam strict catre functia valideaza() din JS care insereaza raspunsul in <p id="mesaj"></p>.
+  Am folosit de asemenea .innerHTML in loc de .innerText ca sa fie si mai sigura afisarea in orice browser.
+-->
+</body>
+</html>

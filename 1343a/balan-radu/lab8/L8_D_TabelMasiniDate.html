@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+<h1 > Masinile dorite </h1>
+
+<form onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+</form>
+<p id="mesaj" style="color: red"></p>
+<button type="button" onclick="stergeToate()">Sterge toate</button>
+
+<table id="tm"></table>
+
+<script>
+var cap = "<tr><th>Marca</th><th>Model</th><th>Culoare</th><th>An fabricatie</th></tr>";
+var masini = [];
+
+function masina(mk, md, cl, an) {
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+}
+
+masina.prototype.randNou = function() {
+  return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+};
+
+function afiseazaTabel() {
+  var html = cap;
+  for (var i = 0; i < masini.length; i++) {
+    html += masini[i].randNou();
+  }
+  document.getElementById("tm").innerHTML = html;
+}
+
+function incarca() {
+  if (localStorage.masiniDate) {
+    var date = JSON.parse(localStorage.masiniDate);
+    for (var i = 0; i < date.length; i++) {
+      var d = date[i];
+      masini.push(new masina(d.marca, d.model, d.culoare, d.anFab));
+    }
+  }
+  afiseazaTabel();
+}
+
+function valideaza(marca, model, culoare, an) {
+  var anCurent = new Date().getFullYear();
+  if (marca == "") {
+    return "Marca nu poate fi goala.";
+  }
+  if (model == "") {
+    return "Modelul nu poate fi gol.";
+  }
+  if (culoare == "") {
+    return "Culoarea nu poate fi goala.";
+  }
+  if (!Number.isInteger(an) || an < 1900 || an > anCurent) {
+    return "Anul trebuie sa fie un numar intreg intre 1900 si " + anCurent + ".";
+  }
+  return "";
+}
+
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value.trim();
+  var model = document.getElementById("model").value.trim();
+  var culoare = document.getElementById("culoare").value.trim();
+  var an = Number(document.getElementById("anFab").value);
+
+  var eroare = valideaza(marca, model, culoare, an);
+  document.getElementById("mesaj").innerHTML = eroare;
+  if (eroare != "") {
+    return false;
+  }
+
+  masini.push(new masina(marca, model, culoare, an));
+  localStorage.setItem("masiniDate", JSON.stringify(masini));
+  afiseazaTabel();
+
+  return false;
+}
+
+function stergeToate() {
+  masini = [];
+  localStorage.removeItem("masiniDate");
+  document.getElementById("mesaj").innerHTML = "";
+  afiseazaTabel();
+}
+
+incarca();
+</script>
+<!--
+Bonus
+
+In Local Storage, sub cheia masiniDate, se pastreaza doar datele masinilor, de exemplu:
+[{"marca":"BMW","model":"S3","culoare":"Neagra","anFab":2020},{"marca":"Dacia","model":"Logan","culoare":"Alba","anFab":2012}]
+
+Metoda randNou este definita o singura data, pe masina.prototype, nu in fiecare obiect. JSON.stringify salveaza doar proprietatile proprii ale obiectului, deci metoda nu ajunge deloc in JSON si nu mai e nevoie de randNou().toString().
+
+La incarcare, JSON.parse intoarce obiecte simple, fara metode. De aceea fiecare este transformat din nou in obiect masina, cu new masina(...). Astfel are din nou metoda randNou(), care se apeleaza cu paranteze.
+
+Butonul Sterge toate goleste tabloul masini, sterge cheia masiniDate din Local Storage si reface tabelul doar cu capul de tabel. Se foloseste removeItem, nu clear, ca sa nu se stearga cheile celorlalte pagini.
+
+Daca se schimba forma randului (de exemplu, se adauga o coloana), in L8_C randurile salvate raman cu forma veche, pentru ca in Local Storage e salvat textul HTML al randului. In L8_D randul se construieste la fiecare incarcare din date, cu metoda curenta, deci toate masinile, si cele vechi, apar cu forma noua.
+-->
+</body>
+</html>

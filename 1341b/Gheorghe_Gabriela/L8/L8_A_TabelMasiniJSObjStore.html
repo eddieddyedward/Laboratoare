@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+<h1 > Masinile dorite </h1>
+  
+<form onsubmit="return adaugaMasina()">
+ <input id="marca" placeholder="Marca" required>
+ <input id="model" placeholder="Model" required>
+ <input id="culoare" placeholder="Culoare" required>
+ <input id="anFab" type="number" placeholder="An fabricatie" required>
+ <button type="submit">Adauga masina</button>
+</form>
+<p id="mesaj"></p> 
+
+<table id="tm">
+<tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+  
+</table>
+<script>
+var m1 = new masina("Opel", "Zafira", "gri", 2015);
+var m2 = new masina("Seat", "Ibiza", "roz", 2018);
+document.getElementById("tm").innerHTML += m1.randNou();
+document.getElementById("tm").innerHTML += m2.randNou();
+if (localStorage.marca) {
+ var mNoua = new masina(localStorage.marca, localStorage.model,
+ localStorage.culoare, localStorage.anFab);
+ document.getElementById("tm").innerHTML += mNoua.randNou();
+}
+
+
+function masina(mk, md, cl, an){
+this.marca = mk;
+this.model = md;
+this.culoare = cl;
+this.anFab = an; // proprietate nouă
+this.randNou = function() {return "<tr><td>" + this.marca + "</td><td>" + this.model +
+ "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>"};
+}
+
+function adaugaMasina() {
+var marca = document.getElementById("marca").value; 
+var model = document.getElementById("model").value;
+var culoare = document.getElementById("culoare").value;
+var an = document.getElementById("anFab").value;
+
+let eroare = valideaza(marca, model, culoare, an);
+
+if (eroare !== "") {
+    document.getElementById("mesaj").innerText = eroare;
+    return;
+}
+var mNoua = new masina(marca, model, culoare, an);
+document.getElementById("tm").innerHTML += mNoua.randNou();
+localStorage.setItem("marca", marca);
+localStorage.setItem("model", model);
+localStorage.setItem("culoare", culoare);
+localStorage.setItem("anFab", an);
+
+return false; 
+}
+
+function valideaza(marca, model, culoare, an){
+
+  if (!marca.trim()) {
+        return "Marca nu poate fi goală!";
+  }
+
+  if (!model.trim()) {
+    return "Modelul nu poate fi gol!";
+  }
+
+  if (!culoare.trim()) {
+    return "Culoarea nu poate fi goală!";
+  }
+
+  if (an.trim() === "" || !Number.isInteger(Number(an)) ||
+    Number(an) < 1900 || Number(an) > new Date().getFullYear()) {
+    return `Anul trebuie să fie un număr întreg între 1900 și 2026!`;
+  }
+
+return "";
+}
+
+</script>
+</body>
+</html>

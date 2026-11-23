@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Laborator 6 - Exercitiul 3</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
+
+        button {
+            padding: 10px 18px;
+            font-size: 15px;
+            cursor: pointer;
+            background-color: #45119e;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        button:hover {
+            background-color: #24045c;
+        }
+
+        #p1 {
+            background-color: #ae92d1;
+            color: #35057c;
+            padding: 15px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #p2 {
+            background-color: #e192aa;
+            color: #7f0b37;
+            padding: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="btnInterschimba">Schimba textele intre ele</button>
+
+    <p id="p1">Primul paragraf</p>
+    <p id="p2">Al doilea paragraf</p>
+
+    <script>
+        var p1 = document.getElementById("p1");
+        var p2 = document.getElementById("p2");
+        var buton = document.getElementById("btnInterschimba");
+
+        function schimba() {
+            var textNou = prompt("Introduceți noul text pentru acest paragraf:", this.innerHTML);
+            if (textNou !== null && textNou !== "") {
+                this.innerHTML = textNou;
+            }
+        }
+
+        p1.onclick = schimba;
+        p2.onclick = schimba;
+
+        buton.onclick = function () {
+            var temp = p1.innerHTML;
+            p1.innerHTML = p2.innerHTML;
+            p2.innerHTML = temp;
+        };
+    </script>
+
+</body>
+</html>

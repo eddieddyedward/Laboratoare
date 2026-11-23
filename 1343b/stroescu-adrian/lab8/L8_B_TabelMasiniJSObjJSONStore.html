@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+<h1 > Masinile dorite </h1>
+
+<p>
+<button onclick="adaugaMasina()";> Adauga masina</button>
+<table id="tm">
+<tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+  </tr>
+  
+</table>
+</p>
+<script>
+var m1 = new masina("Opel", "Zafira", "gri");
+var m2 = new masina("Seat", "Ibiza", "roz");
+
+document.getElementById("tm").innerHTML += m1.randNou(); 
+
+document.getElementById("tm").innerHTML +=  m2.randNou(); 
+if(localStorage.masinaN) {
+var masinaJSON = localStorage.masinaN;
+var mNoua = JSON.parse(masinaJSON);
+
+document.getElementById("tm").innerHTML += mNoua.randNou; // proprietate 
+}
+
+
+
+function masina(mk, md, cl){
+this.marca= mk;
+this.model = md;
+this.culoare = cl;
+this.randNou = function() {return "<tr><td>" + this.marca +"</td><td>" + this.model + "</td><td>" + this.culoare + "</td></tr>"}
+}
+function adaugaMasina() {
+
+
+var marca= prompt("Marca:");
+var model= prompt("Model:");
+var culoare= prompt("Culoare:");
+var mNoua = new masina(marca, model, culoare);
+
+document.getElementById("tm").innerHTML +=  mNoua.randNou(); 
+
+mNoua.randNou = 	mNoua.randNou().toString();
+var myJSON = JSON.stringify(mNoua);
+
+localStorage.setItem("masinaN", myJSON);
+
+
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Masini Raw</title>
+
+    <script>
+        function loadMjs() {
+            document.getElementById("mjs").innerHTML =
+                "Tip: Dacia<br>Model: Logan<br>Culoare: Verde";
+        }
+
+        function afiseaza(depozit, id, cheie) {
+            var text = depozit.getItem(cheie);
+
+            if (text == null) {
+                document.getElementById(id).innerHTML =
+                    "Nicio masina salvata";
+            } else {
+                var masina = JSON.parse(text);
+
+                document.getElementById(id).innerHTML =
+                    "Tip: " + masina.tip + "<br>" +
+                    "Model: " + masina.model + "<br>" +
+                    "Culoare: " + masina.culoare;
+            }
+        }
+
+        function salveazaMls() {
+            var masina = {
+                tip: document.getElementById("tipL").value,
+                model: document.getElementById("modelL").value,
+                culoare: document.getElementById("culoareL").value
+            };
+
+            localStorage.setItem("masina", JSON.stringify(masina));
+
+            afiseaza(localStorage, "mls", "masina");
+
+            return false;
+        }
+
+        function salveazaMss() {
+            var masina = {
+                tip: document.getElementById("tipS").value,
+                model: document.getElementById("modelS").value,
+                culoare: document.getElementById("culoareS").value
+            };
+
+            sessionStorage.setItem("masina", JSON.stringify(masina));
+
+            afiseaza(sessionStorage, "mss", "masina");
+
+            return false;
+        }
+
+        function sterge(depozit, id, cheie) {
+            depozit.removeItem(cheie);
+            afiseaza(depozit, id, cheie);
+        }
+
+        function initializeaza() {
+            loadMjs();
+            afiseaza(localStorage, "mls", "masina");
+            afiseaza(sessionStorage, "mss", "masina");
+        }
+    </script>
+</head>
+
+<body onload="initializeaza()">
+
+    <h1>Masina JavaScript</h1>
+    <div id="mjs"></div>
+
+    <hr>
+
+    <div style="background-color:ForestGreen;color:white;font-size:150%;padding:15px">
+
+        <p>Masina Local Storage</p>
+
+        <form onsubmit="return salveazaMls()">
+            <label>Tip</label>
+            <input id="tipL" required>
+
+            <label>Model</label>
+            <input id="modelL" required>
+
+            <label>Culoare</label>
+            <input id="culoareL" required>
+
+            <button type="submit">Salveaza</button>
+            <button type="button"
+                onclick="sterge(localStorage,'mls','masina')">
+                Sterge
+            </button>
+        </form>
+
+        <div id="mls"></div>
+
+    </div>
+
+    <br>
+
+    <div style="background-color:SeaGreen;color:white;font-size:150%;padding:15px">
+
+        <p>Masina Session Storage</p>
+
+        <form onsubmit="return salveazaMss()">
+            <label>Tip</label>
+            <input id="tipS" required>
+
+            <label>Model</label>
+            <input id="modelS" required>
+
+            <label>Culoare</label>
+            <input id="culoareS" required>
+
+            <button type="submit">Salveaza</button>
+            <button type="button"
+                onclick="sterge(sessionStorage,'mss','masina')">
+                Sterge
+            </button>
+        </form>
+
+        <div id="mss"></div>
+
+    </div>
+
+</body>
+</html>

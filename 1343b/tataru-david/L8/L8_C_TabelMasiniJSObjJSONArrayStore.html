@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>Tabel masini - Array obiecte</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+#mesaj {
+  color: red;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+<h1>Masinile dorite</h1>
+
+<form onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+</form>
+
+<p id="mesaj"></p>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+</table>
+
+<script>
+const masini2Store = [];
+
+if (localStorage.carsArray) {
+    let arrayJSON = localStorage.carsArray;
+    var masiniStored = JSON.parse(arrayJSON);
+    for (var i = 0; i < masiniStored.length; i++) {
+        document.getElementById("tm").innerHTML += masiniStored[i].randNou;
+        masini2Store.push(masiniStored[i]);
+    }
+}
+
+function masina(mk, md, cl, an) {
+    this.marca = mk;
+    this.model = md;
+    this.culoare = cl;
+    this.anFab = an;
+    this.randNou = function() {
+        return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+    };
+}
+
+function valideaza(marca, model, culoare, an) {
+    if (marca.trim() === "" || model.trim() === "" || culoare.trim() === "") {
+        return "Eroare: Marca, modelul si culoarea nu pot fi goale sau formate doar din spatii!";
+    }
+    var anNumar = Number(an);
+    var anCurent = new Date().getFullYear();
+    if (!Number.isInteger(anNumar) || anNumar < 1900 || anNumar > anCurent) {
+        return "Eroare: Anul trebuie sa fie un numar intreg intre 1900 si " + anCurent + "!";
+    }
+    return "";
+}
+
+function adaugaMasina() {
+    var marca = document.getElementById("marca").value;
+    var model = document.getElementById("model").value;
+    var culoare = document.getElementById("culoare").value;
+    var an = document.getElementById("anFab").value;
+
+    var eroare = valideaza(marca, model, culoare, an);
+    var pMesaj = document.getElementById("mesaj");
+
+    if (eroare !== "") {
+        pMesaj.innerHTML = eroare;
+        return false;
+    }
+
+    pMesaj.innerHTML = "";
+    var mNoua = new masina(marca.trim(), model.trim(), culoare.trim(), Number(an));
+    document.getElementById("tm").innerHTML += mNoua.randNou(); 
+
+    mNoua.randNou = mNoua.randNou().toString();
+    masini2Store.push(mNoua);
+    var myJSON = JSON.stringify(masini2Store);
+    localStorage.setItem("carsArray", myJSON);
+
+    return false;
+}
+</script>
+
+<!--
+Explicatii:
+1. Tabloul masini2Store: In loc sa retina un singur obiect, pastreaza un array cu toate masinile adaugate in sesiunea curenta si 
+cele incarcate anterior. Fiecare masina noua este adaugata la final cu metoda .push(), fara a le sterge pe cele vechi.
+2. Cheia carsArray: Stocheaza intregul tablou serializat ca text JSON intr-o singura cheie din Local Storage,
+ rezolvand problema suprascrierii datelor din L8_A si L8_B.
+3. Bucla for de la incarcare: La deschiderea paginii, citeste tabloul din carsArray, il parcurge element cu element in ordinea adaugarii, 
+afiseaza fiecare rand in tabel si repopuleaza tabloul masini2Store din memorie pentru ca adaugarile viitoare sa continue lista existenta.
+-->
+</body>
+</html>

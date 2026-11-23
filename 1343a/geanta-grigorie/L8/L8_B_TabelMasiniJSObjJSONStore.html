@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+<h1 > Masinile dorite </h1>
+
+<form onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+</form>
+<p id="mesaj" style="color: red; font-weight: bold;"></p>
+<table id="tm">
+<tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+  
+</table>
+</p>
+<script>
+var m1 = new masina("Opel", "Zafira", "gri",2000);
+var m2 = new masina("Seat", "Ibiza", "roz",2001);
+
+document.getElementById("tm").innerHTML += m1.randNou(); 
+document.getElementById("tm").innerHTML +=  m2.randNou(); 
+
+if(localStorage.masinaN) {
+var masinaJSON = localStorage.masinaN;
+var mNoua = JSON.parse(masinaJSON);
+
+document.getElementById("tm").innerHTML += mNoua.randNou; // proprietate 
+}
+
+
+
+function masina(mk, md, cl, an){
+this.marca= mk;
+this.model = md;
+this.culoare = cl;
+this.anFab = an;
+this.randNou = function() {return "<tr><td>" + this.marca +"</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";}
+}
+
+function valideaza(marca, model, culoare, an){
+  if(marca.trim() == "" && model.trim() == "" && culoare.trim() == "" && an.trim() == ""){
+    return "Campurile nu pot fi goale!"
+  }
+  var anCurent = new Date().getFullYear();
+  var anNumar = Number(an);
+  if(Number.isInteger(anNumar) == false || anNumar < 1900 || anNumar > anCurent){
+    return "An fabricatie invalid!"
+  }
+
+  return ""
+}
+
+function adaugaMasina() {
+
+
+var marca = document.getElementById("marca").value;
+var model = document.getElementById("model").value;
+var culoare = document.getElementById("culoare").value;
+var an = document.getElementById("anFab").value;
+
+var eroare = valideaza(marca, model, culoare, an);
+var paragrafMesaj = document.getElementById("mesaj");
+
+if (eroare !== "") {
+    paragrafMesaj.innerHTML = eroare;
+    return false;
+  }
+
+paragrafMesaj.innerHTML = "";
+
+var mNoua = new masina(marca, model, culoare, an);
+document.getElementById("tm").innerHTML += mNoua.randNou();
+
+
+mNoua.randNou = 	mNoua.randNou().toString();
+var myJSON = JSON.stringify(mNoua);
+
+localStorage.setItem("masinaN", myJSON);
+
+return false;
+}
+</script>
+</body>
+</html>
+
+<!--
+a) dupa adaugarea unei masini, masinaN contine un obiect de tip masina cu atributele marca, model si culoare.
+b) acea linie inlocuieste metoda cu text pentru a fi apoi parsata ca bucata de cod JSON; fara aceasta bucata respectiva de cod nu ar mai rula
+c) la reincarcare, randNou se scrie fara paranteze pentru ca, dupa ce a rulat o data metoda ea contine o valoare si este privita ca atribut
+d) dupa reincarcare apare doar o masina adaugata, compartativ cu L8_A
+-->

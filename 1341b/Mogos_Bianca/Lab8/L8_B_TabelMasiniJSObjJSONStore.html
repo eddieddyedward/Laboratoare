@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 15px;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+.error {
+  color: red;
+  font-size: 0.9em;
+  margin-top: 5px;
+}
+
+form {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  width: 300px;
+}
+
+div {
+  margin-bottom: 10px;
+}
+
+label {
+  display: inline-block;
+  width: 90px;
+}
+</style>
+</head>
+<body>
+
+<h1>Masinile dorite</h1>
+
+
+<form id="masinaForm" onsubmit="adaugaMasina(event)">
+  <div>
+    <label for="marca">Marca:</label>
+    <input type="text" id="marca" required>
+  </div>
+  <div>
+    <label for="model">Model:</label>
+    <input type="text" id="model" required>
+  </div>
+  <div>
+    <label for="culoare">Culoare:</label>
+    <input type="text" id="culoare" required>
+  </div>
+  <div>
+    <label for="an">An fabricație:</label>
+    <input type="number" id="an" min="1900" max="2026" required>
+  </div>
+  <button type="submit">Adauga masina</button>
+  <div id="mesajEroare" class="error"></div>
+</form>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricație</th>
+  </tr>
+</table>
+
+<script>
+
+function masina(mk, md, cl, an){
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.an = an;
+  this.randNou = function() {
+    return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.an + "</td></tr>";
+  }
+}
+
+
+var m1 = new masina("Opel", "Zafira", "gri", 2008);
+var m2 = new masina("Seat", "Ibiza", "roz", 2015);
+
+document.getElementById("tm").innerHTML += m1.randNou(); 
+document.getElementById("tm").innerHTML += m2.randNou(); 
+
+if(localStorage.masinaN) {
+  var masinaJSON = localStorage.masinaN;
+  var mNoua = JSON.parse(masinaJSON);
+
+  document.getElementById("tm").innerHTML += mNoua.randNou; 
+}
+
+function adaugaMasina(event) {
+  event.preventDefault();
+
+  var marca = document.getElementById("marca").value.trim();
+  var model = document.getElementById("model").value.trim();
+  var culoare = document.getElementById("culoare").value.trim();
+  var an = document.getElementById("an").value.trim();
+  var eroareDiv = document.getElementById("mesajEroare");
+
+  if (marca === "" || model === "" || culoare === "" || an === "") {
+    eroareDiv.textContent = "Toate câmpurile sunt obligatorii!";
+    return;
+  }
+
+  if (isNaN(an) || an < 1900 || an > 2026) {
+    eroareDiv.textContent = "Introduceți un an de fabricație valid (între 1900 și 2026)!";
+    return;
+  }
+
+  eroareDiv.textContent = ""; 
+
+  var mNoua = new masina(marca, model, culoare, an);
+
+  document.getElementById("tm").innerHTML += mNoua.randNou(); 
+
+  mNoua.randNou = mNoua.randNou().toString();
+  var myJSON = JSON.stringify(mNoua);
+
+  localStorage.setItem("masinaN", myJSON);
+
+  document.getElementById("masinaForm").reset();
+}
+/*
+(a) Cheia masinaN din localStorage contine un sir de caractere (string) in format JSON . Acest string include proprietatile obiectului (marca, model, culoare) si proprietatea randNou,
+ care a fost transformata intr-un sir text.
+
+(b) Este conceputa sa serializeze datele obiectelor, insa ignora complet functiile unui obiect. Daca nu s-ar transforma functia randNou intr-un sir text inainte de JSON.stringify, 
+proprietatea randNou nu s-ar salva deloc in localStorage. 
+
+(c) La reincarcarea paginii, obiectul mNoua este recreat din JSON prin JSON.parse(). Deoarece randNou a fost salvat in localStorage ca fiind un sir de caractere, 
+in urma parsarii el a devenit o proprietate obisnita de tip string, si nu o functie. 
+
+(d) Dupa reincarcare, apare o singura masina adaugata . Acest lucru se intampla deoarece se foloseste o cheie fixa, iar apelul localStorage.setItem("masinaN", myJSON) 
+suprascrie de fiecare data valoarea anterioara cu noua masina salvata.
+*/
+</script>
+
+</body>
+</html>

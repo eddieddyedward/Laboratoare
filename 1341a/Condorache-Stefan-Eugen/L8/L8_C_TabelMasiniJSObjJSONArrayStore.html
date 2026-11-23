@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 15px;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+form {
+  margin-bottom: 10px;
+}
+
+input {
+  margin-right: 10px;
+}
+
+#mesaj {
+  color: #d93025;
+  font-weight: bold;
+  min-height: 20px;
+}
+</style>
+</head>
+<body>
+<h1>Masinile dorite</h1>
+
+<!--
+Exercițiul 6 – Ce aduce nou L8_C față de L8_B:
+1. Tabloul masini2Store: Este un array JavaScript păstrat în memorie (RAM) care colectează
+   toate obiectele mașină (atât cele restaurate la încărcarea paginii, cât și cele nou adăugate
+   în sesiunea curentă), spre deosebire de L8_B unde exista o singură variabilă mNoua.
+2. Cheia carsArray din localStorage: În locul cheii masinaN (care reținea un singur obiect JSON
+   suprascris la fiecare adăugare), L8_C salvează întregul tablou masini2Store serializat ca șir
+   JSON sub cheia "carsArray", permițând păstrarea unui număr nelimitat de mașini.
+3. Bucla for de la încărcare: La deschiderea sau reîncărcarea paginii, șirul din localStorage.carsArray
+   este deserializat cu JSON.parse() într-un tablou (masiniStored). Bucla for îl parcurge de la
+   indexul 0 la length - 1 (păstrând exact ordinea adăugării), afișează fiecare rând în tabel
+   și repopulează tabloul masini2Store prin .push(), astfel încât următoarele adăugări să se
+   continue de la lista existentă, nu să o șteargă.
+-->
+
+<form id="formMasina" onsubmit="return adaugaMasina()" novalidate>
+  <label for="marca">Marca:</label>
+  <input type="text" id="marca">
+
+  <label for="model">Model:</label>
+  <input type="text" id="model">
+
+  <label for="culoare">Culoare:</label>
+  <input type="text" id="culoare">
+
+  <label for="anFab">An fabricatie:</label>
+  <input type="text" id="anFab">
+
+  <button type="submit">Adauga masina</button>
+</form>
+
+<p id="mesaj"></p>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+</table>
+
+<script>
+const masini2Store = [];
+
+if (localStorage.carsArray) {
+  let arrayJSON = localStorage.carsArray;
+  var masiniStored = JSON.parse(arrayJSON);
+  for (var i = 0; i < masiniStored.length; i++) {
+    document.getElementById("tm").innerHTML += masiniStored[i].randNou;
+    masini2Store.push(masiniStored[i]);
+  }
+}
+
+function masina(mk, md, cl, an) {
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+  this.randNou = function() {
+    return "<tr><td>" + this.marca + "</td><td>" + this.model +
+           "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+  };
+}
+
+function valideaza(marca, model, culoare, an) {
+  var anulCurent = new Date().getFullYear();
+
+  if (marca.trim() === "") {
+    return "Marca nu poate fi goală sau formată doar din spații.";
+  }
+  if (model.trim() === "") {
+    return "Modelul nu poate fi gol sau format doar din spații.";
+  }
+  if (culoare.trim() === "") {
+    return "Culoarea nu poate fi goală sau formată doar din spații.";
+  }
+
+  var anNumar = Number(an);
+  if (an.trim() === "" || !Number.isInteger(anNumar) || anNumar < 1900 || anNumar > anulCurent) {
+    return "Anul de fabricație trebuie să fie un număr întreg între 1900 și " + anulCurent + ".";
+  }
+
+  return "";
+}
+
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value;
+  var model = document.getElementById("model").value;
+  var culoare = document.getElementById("culoare").value;
+  var an = document.getElementById("anFab").value;
+  var paragrafMesaj = document.getElementById("mesaj");
+
+  var eroare = valideaza(marca, model, culoare, an);
+  if (eroare !== "") {
+    paragrafMesaj.textContent = eroare;
+    return false;
+  }
+
+  paragrafMesaj.textContent = "";
+
+  var mNoua = new masina(marca.trim(), model.trim(), culoare.trim(), Number(an));
+  document.getElementById("tm").innerHTML += mNoua.randNou();
+
+  mNoua.randNou = mNoua.randNou().toString();
+  masini2Store.push(mNoua);
+
+  var myJSON = JSON.stringify(masini2Store);
+  localStorage.setItem("carsArray", myJSON);
+
+  document.getElementById("formMasina").reset();
+  return false;
+}
+</script>
+</body>
+</html>

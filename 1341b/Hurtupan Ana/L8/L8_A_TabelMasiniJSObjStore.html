@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+<h1 > Masinile dorite </h1>
+
+<form onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+</form>
+
+<p id="mesaj" style="color: red; font-weight: bold;"></p>
+
+<table id="tm">
+<tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+</table>
+
+<script>
+// Functia constructor actualizata pentru a include si anul de fabricatie
+function masina(mk, md, cl, an){
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+  this.randNou = function() {
+    return "<tr><td>" + this.marca +"</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+  };
+}
+
+var m1 = new masina("Opel", "Zafira", "gri", 2015);
+var m2 = new masina("Seat", "Ibiza", "roz", 2018);
+
+document.getElementById("tm").innerHTML += m1.randNou(); 
+document.getElementById("tm").innerHTML += m2.randNou(); 
+
+// Incarcarea masinii din Local Storage (daca exista)
+if(localStorage.marca) {
+  var marca = localStorage.marca;
+  var model = localStorage.model;
+  var culoare = localStorage.culoare;
+  var anFab = localStorage.anFab;
+
+  var mNoua = new masina(marca, model, culoare, anFab);
+  document.getElementById("tm").innerHTML += mNoua.randNou();
+}
+
+// Functia de validare (Ex 3)
+function valideaza(marca, model, culoare, an) {
+  // verificam daca stringurile sunt doar spatii
+  if (marca.trim() === "" || model.trim() === "" || culoare.trim() === "") {
+    return "Marca, modelul si culoarea nu pot fi formate doar din spatii.";
+  }
+  
+  var anCurent = new Date().getFullYear();
+  var anNumar = Number(an);
+  
+  // verificam daca anul e numar intreg si daca se incadreaza in interval
+  if (!Number.isInteger(anNumar) || anNumar < 1900 || anNumar > anCurent) {
+    return "Anul de fabricatie trebuie sa fie intre 1900 si " + anCurent + ".";
+  }
+  
+  return ""; // daca totul e ok, returnam un string gol
+}
+
+// Functia de adaugare din formular
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value;
+  var model = document.getElementById("model").value;
+  var culoare = document.getElementById("culoare").value;
+  var anFab = document.getElementById("anFab").value;
+
+  var mesajEroare = valideaza(marca, model, culoare, anFab);
+  
+  if (mesajEroare !== "") {
+    // Daca avem eroare, o afisam si oprim procesul
+    document.getElementById("mesaj").innerHTML = mesajEroare;
+    return false;
+  } else {
+    // Daca datele sunt bune, stergem mesajul de eroare
+    document.getElementById("mesaj").innerHTML = "";
+  }
+
+  var mNoua = new masina(marca, model, culoare, anFab);
+  document.getElementById("tm").innerHTML += mNoua.randNou(); 
+
+  // Salvam atributele separat in Local Storage
+  localStorage.setItem("marca", marca);
+  localStorage.setItem("model", model);
+  localStorage.setItem("culoare", culoare);
+  localStorage.setItem("anFab", anFab);
+
+  return false; // formularul nu reîncarcă pagina
+}
+</script>
+</body>
+</html>

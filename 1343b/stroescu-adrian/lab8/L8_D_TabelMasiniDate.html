@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+#mesaj {
+  color: red;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+<h1>Masinile dorite</h1>
+
+<form onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+  <button type="button" onclick="stergeTot()">Sterge toate</button>
+</form>
+
+<p id="mesaj"></p>
+
+<table id="tm">
+<tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+</table>
+
+<script>
+const masini2Store = [];
+
+function masina(mk, md, cl, an){
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+}
+
+masina.prototype.randNou = function() {
+  return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+};
+
+if(localStorage.carsArray) {
+  let arrayJSON = localStorage.carsArray;
+  var masiniStored = JSON.parse(arrayJSON);
+  
+  for(let i = 0; i < masiniStored.length; i++){
+    // Transformăm datele brute într-un obiect cu metode folosind 'new'
+    var m = new masina(masiniStored[i].marca, masiniStored[i].model, masiniStored[i].culoare, masiniStored[i].anFab);
+    document.getElementById("tm").innerHTML += m.randNou(); 
+    masini2Store.push(m);
+  }
+}
+
+function validare(marca, model, culoare, an) {
+  if (marca === "" || model === "" || culoare === "") {
+    return "Marca, modelul, culoarea nu pot fi goale";
+  }
+  
+  var anCurent = new Date().getFullYear();
+  var anInt = Number.parseInt(an, 10);
+
+  if (!Number.isInteger(anInt) || anInt < 1900 || anInt > anCurent) {
+    return "An fabricație trebuie să fie natural, în [1900, an curent]";
+  }
+  
+  return "";
+}
+
+function citesteFormularul() {
+  var marca = document.getElementById("marca").value.trim();
+  var model = document.getElementById("model").value.trim();
+  var culoare = document.getElementById("culoare").value.trim();
+  var an = Number(document.getElementById("anFab").value);
+
+  var eroare = validare(marca, model, culoare, an);
+  document.getElementById("mesaj").innerHTML = eroare;
+
+  if (eroare !== "") {
+    return null;
+  }
+
+  return new masina(marca, model, culoare, an);
+}
+
+function adaugaMasina() {
+  var mNoua = citesteFormularul();
+
+  if (mNoua === null) {
+    return false; 
+  }
+
+  document.getElementById("tm").innerHTML += mNoua.randNou(); 
+
+  masini2Store.push(mNoua);
+  var myJSON = JSON.stringify(masini2Store);
+  localStorage.setItem("carsArray", myJSON);
+
+  return false; 
+}
+
+function stergeTot() {
+  localStorage.removeItem("carsArray");
+  masini2Store.length = 0;
+
+  document.getElementById("tm").innerHTML = `
+    <tr>
+      <th>Marca</th>
+      <th>Model</th>
+      <th>Culoare</th>
+      <th>An fabricatie</th>
+    </tr>
+  `;
+  document.getElementById("mesaj.innerHTML" || "mesaj").innerHTML = "";
+}
+</script>
+</body>
+</html>

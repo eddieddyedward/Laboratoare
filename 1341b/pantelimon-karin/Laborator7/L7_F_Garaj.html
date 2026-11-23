@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Garaj - Tablou de obiecte în Local Storage</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #1173a1; color: white; }
+        form { background: #f9f9f9; padding: 15px; border: 1px solid #ccc; width: 300px; }
+        input { margin-bottom: 10px; width: 100%; padding: 5px; box-sizing: border-box; }
+    </style>
+    <script>
+
+    window.onload = function() {
+        afiseazaGaraj();
+    };
+
+    function adaugaMasina() {
+        var tip = document.getElementById("tip").value;
+        var model = document.getElementById("model").value;
+        var culoare = document.getElementById("culoare").value;
+        var anFab = document.getElementById("anFab").value;
+
+        var garaj = JSON.parse(localStorage.getItem("garaj")) || [];
+
+        var masinaNoua = { tip: tip, model: model, culoare: culoare, anFab: anFab };
+
+        garaj.push(masinaNoua);
+
+        localStorage.setItem("garaj", JSON.stringify(garaj));
+
+        document.getElementById("formGaraj").reset();
+        afiseazaGaraj();
+
+        return false; 
+    }
+
+    function stergeMasina(index) {
+        var garaj = JSON.parse(localStorage.getItem("garaj")) || [];
+
+        garaj.splice(index, 1);
+
+        localStorage.setItem("garaj", JSON.stringify(garaj));
+
+        afiseazaGaraj();
+    }
+
+    function afiseazaGaraj() {
+        var garaj = JSON.parse(localStorage.getItem("garaj")) || [];
+        var containerTabel = document.getElementById("tabelGaraj");
+        var contorDiv = document.getElementById("numarMasini");
+
+        contorDiv.innerHTML = "<b>Număr mașini în garaj: </b>" + garaj.length;
+
+        if (garaj.length === 0) {
+            containerTabel.innerHTML = "<p>Garajul este gol.</p>";
+            return;
+        }
+
+        var html = "<table>";
+        html += "<tr><th>Tip</th><th>Model</th><th>Culoare</th><th>An fabricație</th><th>Acțiune</th></tr>";
+
+        for (var i = 0; i < garaj.length; i++) {
+            html += "<tr>";
+            html += "<td>" + garaj[i].tip + "</td>";
+            html += "<td>" + garaj[i].model + "</td>";
+            html += "<td>" + garaj[i].culoare + "</td>";
+            html += "<td>" + garaj[i].anFab + "</td>";
+            // Fiecare buton de ștergere primește indexul mașinii corespunzătoare din tablou
+            html += "<td><button onclick='stergeMasina(" + i + ")'>Șterge</button></td>";
+            html += "</tr>";
+        }
+
+        html += "</table>";
+        containerTabel.innerHTML = html;
+    }
+    </script>
+</head>
+<body>
+
+    <h2>Garajul Meu (Local Storage cu Tablou de Obiecte)</h2>
+
+    <form id="formGaraj" onsubmit="return adaugaMasina();">
+        <label for="tip">Tip:</label>
+        <input type="text" id="tip" required>
+
+        <label for="model">Model:</label>
+        <input type="text" id="model" required>
+
+        <label for="culoare">Culoare:</label>
+        <input type="text" id="culoare" required>
+
+        <label for="anFab">An fabricație:</label>
+        <input type="number" id="anFab" required>
+
+        <input type="submit" value="Adaugă mașină">
+    </form>
+
+    <br>
+    <div id="numarMasini"></div>
+
+    <div id="tabelGaraj"></div>
+
+</body>
+</html>

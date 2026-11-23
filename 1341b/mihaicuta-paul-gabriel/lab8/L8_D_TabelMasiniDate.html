@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Tabel masini - doar date</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+<h1 > Masinile dorite </h1>
+
+<form id="formular" onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+  <button type="button" onclick="stergeToate()">Sterge toate</button>
+</form>
+
+<p id="mesaj"></p>
+
+<table id="tm"></table>
+
+<script>
+var capTabel = "<tr><th>Marca</th><th>Model</th><th>Culoare</th><th>An fabricatie</th></tr>";
+var masini = [];
+
+function masina(mk, md, cl, an){
+this.marca = mk;
+this.model = md;
+this.culoare = cl;
+this.anFab = an;
+}
+
+// metoda definita o singura data, pentru toate obiectele; JSON.stringify nu o vede
+masina.prototype.randNou = function() {
+return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+};
+
+function afiseazaTabel() {
+var html = capTabel;
+for (var i = 0; i < masini.length; i++) {
+  html += masini[i].randNou();
+}
+document.getElementById("tm").innerHTML = html;
+}
+
+function valideaza(marca, model, culoare, an) {
+var anCurent = new Date().getFullYear();
+if (marca === "") return "Marca nu poate fi goala.";
+if (model === "") return "Modelul nu poate fi gol.";
+if (culoare === "") return "Culoarea nu poate fi goala.";
+if (!Number.isInteger(an) || an < 1900 || an > anCurent) return "Anul trebuie sa fie un numar intreg intre 1900 si " + anCurent + ".";
+return "";
+}
+
+function adaugaMasina() {
+var marca = document.getElementById("marca").value.trim();
+var model = document.getElementById("model").value.trim();
+var culoare = document.getElementById("culoare").value.trim();
+var an = Number(document.getElementById("anFab").value);
+
+var eroare = valideaza(marca, model, culoare, an);
+document.getElementById("mesaj").innerHTML = eroare;
+if (eroare !== "") {
+  return false;
+}
+
+masini.push(new masina(marca, model, culoare, an));
+localStorage.setItem("masiniDate", JSON.stringify(masini));
+afiseazaTabel();
+
+document.getElementById("formular").reset();
+return false;
+}
+
+function stergeToate() {
+masini = [];
+localStorage.removeItem("masiniDate");
+document.getElementById("mesaj").innerHTML = "";
+afiseazaTabel();
+}
+
+// la incarcare: fiecare masina citita din JSON devine din nou obiect masina (cu new), deci are randNou()
+var salvate = JSON.parse(localStorage.getItem("masiniDate")) || [];
+for (var i = 0; i < salvate.length; i++) {
+masini.push(new masina(salvate[i].marca, salvate[i].model, salvate[i].culoare, salvate[i].anFab));
+}
+afiseazaTabel();
+</script>
+</body>
+</html>

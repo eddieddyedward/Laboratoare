@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+<h1 > Masinile dorite </h1>
+
+<form onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+</form>
+
+<p id="mesaj" style="color: red; font-weight: bold;"></p>
+
+<table id="tm">
+<tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+</table>
+
+<script>
+// Array-ul care ne va tine minte toate masinile
+const masini2Store = [];
+
+// Citim din Local Storage cand se incarca pagina
+if(localStorage.carsArray) {
+  let arrayJSON = localStorage.carsArray;
+  var masiniStored = JSON.parse(arrayJSON);
+  
+  // Parcurgem toate masinile din tablou
+  for(let i=0; i < masiniStored.length ; i++){
+    document.getElementById("tm").innerHTML += masiniStored[i].randNou; // e vazut ca text, deci fara paranteze
+    masini2Store.push(masiniStored[i]); // le bagam inapoi in array-ul nostru curent ca sa nu le pierdem
+  }
+}
+
+// Constructorul cu an adaugat
+function masina(mk, md, cl, an){
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+  this.randNou = function() {
+    return "<tr><td>" + this.marca +"</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+  }
+}
+
+// Functia de validare
+function valideaza(marca, model, culoare, an) {
+  if (marca.trim() === "" || model.trim() === "" || culoare.trim() === "") {
+    return "Marca, modelul si culoarea nu pot fi goale sau formate doar din spatii.";
+  }
+  
+  var anCurent = new Date().getFullYear();
+  var anNumar = Number(an);
+  
+  if (!Number.isInteger(anNumar) || anNumar < 1900 || anNumar > anCurent) {
+    return "Anul trebuie sa fie un numar intreg intre 1900 si " + anCurent + ".";
+  }
+  
+  return ""; 
+}
+
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value;
+  var model = document.getElementById("model").value;
+  var culoare = document.getElementById("culoare").value;
+  var an = document.getElementById("anFab").value;
+
+  var eroare = valideaza(marca, model, culoare, an);
+  if (eroare !== "") {
+    document.getElementById("mesaj").innerHTML = eroare;
+    return false;
+  } else {
+    document.getElementById("mesaj").innerHTML = "";
+  }
+
+  var mNoua = new masina(marca, model, culoare, an);
+  
+  // Afisam in pagina (aici e inca functie)
+  document.getElementById("tm").innerHTML += mNoua.randNou(); 
+
+  // O transformam in text ca sa mearga cu JSON.stringify
+  mNoua.randNou = mNoua.randNou().toString();
+  
+  // Bagam masina noua la finalul array-ului
+  masini2Store.push(mNoua);
+  
+  // Transformam tot array-ul (cu toate masinile de pana acum) in JSON si il salvam
+  var myJSON = JSON.stringify(masini2Store);
+  localStorage.setItem("carsArray", myJSON);
+
+  return false;
+}
+</script>
+
+<!--
+Ce aduce nou L8_C fata de L8_B?
+L8_B putea sa memoreze o singura masina (suprascria de fiecare data cand salvam un obiect in aceeasi cheie masinaN).
+L8_C in loc sa salveze direct un obiect, salveaza un intreg Array (lista) de obiecte numit `masini2Store`, salvat sub cheia `carsArray`.
+Acel `for` care exista la incarcarea paginii ne ajuta sa trecem prin absolut toate masinile salvate in lista din Local Storage si sa le punem pe ecran.
+Mai mult decat atat, in interiorul loop-ului se face un "push" in `masini2Store`, ceea ce inseamna ca noi luam lista veche si o punem la loc in memorie, 
+ca sa putem adauga masini noi in continuare fara sa se piarda cele vechi.
+-->
+
+</body>
+</html>

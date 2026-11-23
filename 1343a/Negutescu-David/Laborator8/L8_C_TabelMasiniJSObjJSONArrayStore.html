@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+
+<h1>Masinile dorite</h1>
+
+<input id="marca" placeholder="Marca">
+<input id="model" placeholder="Model">
+<input id="culoare" placeholder="Culoare">
+<input id="anFab" type="number" placeholder="An fabricatie">
+
+<button onclick="adaugaMasina()">Adauga masina</button>
+
+<p id="mesaj"></p>
+
+<table id="tm">
+<tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+</tr>
+</table>
+
+<script>
+
+const masini2Store = [];
+
+if (localStorage.carsArray) {
+    let arrayJSON = localStorage.carsArray;
+    var masiniStored = JSON.parse(arrayJSON);
+
+    for (var i = 0; i < masiniStored.length; i++) {
+        document.getElementById("tm").innerHTML += masiniStored[i].randNou;
+        masini2Store.push(masiniStored[i]);
+    }
+}
+
+function masina(mk, md, cl, an) {
+    this.marca = mk;
+    this.model = md;
+    this.culoare = cl;
+    this.anFab = an;
+
+    this.randNou = function() {
+        return "<tr><td>" + this.marca +
+        "</td><td>" + this.model +
+        "</td><td>" + this.culoare +
+        "</td><td>" + this.anFab + "</td></tr>";
+    };
+}
+
+function valideaza(marca, model, culoare, an) {
+    var anCurent = new Date().getFullYear();
+
+    if (marca.trim() === "") {
+        return "Marca nu poate fi goala!";
+    }
+
+    if (model.trim() === "") {
+        return "Modelul nu poate fi gol!";
+    }
+
+    if (culoare.trim() === "") {
+        return "Culoarea nu poate fi goala!";
+    }
+
+    if (an.trim() === "" || !/^\d+$/.test(an) ||
+        Number(an) < 1900 || Number(an) > anCurent) {
+        return "Anul trebuie sa fie un numar intreg intre 1900 si " + anCurent + "!";
+    }
+
+    return "";
+}
+
+function adaugaMasina() {
+    var marca = document.getElementById("marca").value;
+    var model = document.getElementById("model").value;
+    var culoare = document.getElementById("culoare").value;
+    var an = document.getElementById("anFab").value;
+
+    var mesaj = valideaza(marca, model, culoare, an);
+
+    document.getElementById("mesaj").innerHTML = mesaj;
+
+    if (mesaj !== "") {
+        return false;
+    }
+
+    marca = marca.trim();
+    model = model.trim();
+    culoare = culoare.trim();
+
+    var mNoua = new masina(marca, model, culoare, an);
+
+    document.getElementById("tm").innerHTML += mNoua.randNou();
+
+    mNoua.randNou = mNoua.randNou().toString();
+
+    masini2Store.push(mNoua);
+
+    var myJSON = JSON.stringify(masini2Store);
+
+    localStorage.setItem("carsArray", myJSON);
+
+    document.getElementById("mesaj").innerHTML = "";
+
+    document.getElementById("marca").value = "";
+    document.getElementById("model").value = "";
+    document.getElementById("culoare").value = "";
+    document.getElementById("anFab").value = "";
+
+    return false;
+}
+
+</script>
+</body>
+</html>
+
+<!--
+Exercitiul 6.
+1. Tabloul masini2Store:
+   Pastreaza toate masinile adaugate intr-un singur tablou JavaScript.
+   La fiecare adaugare, noua masina este introdusa cu push().
+
+2. Cheia carsArray:
+   Toate masinile din tablou sunt salvate impreuna in localStorage,
+   sub forma unui sir JSON, folosind cheia carsArray.
+
+3. Bucla de la incarcare:
+   La deschiderea paginii, datele sunt citite din localStorage
+   cu JSON.parse(), apoi bucla for parcurge toate masinile salvate.
+
+-->

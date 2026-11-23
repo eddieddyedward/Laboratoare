@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>Tabel masini - Stocare doar date (Bonus)</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+#mesaj {
+  color: red;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+<h1>Masinile dorite (Stocare curata de date)</h1>
+
+<form onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" min="1900" max="2026" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+  <button type="button" onclick="stergeToate()">Sterge toate</button>
+</form>
+
+<p id="mesaj"></p>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+</table>
+
+<script>
+function masina(mk, md, cl, an) {
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+}
+
+masina.prototype.randNou = function() {
+  return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+};
+
+const masiniDate = [];
+
+if (localStorage.carsDataOnly) {
+  var masiniStored = JSON.parse(localStorage.carsDataOnly);
+  for (var i = 0; i < masiniStored.length; i++) {
+    var obj = new masina(
+      masiniStored[i].marca,
+      masiniStored[i].model,
+      masiniStored[i].culoare,
+      masiniStored[i].anFab
+    );
+    document.getElementById("tm").innerHTML += obj.randNou();
+    masiniDate.push(obj);
+  }
+}
+
+function valideaza(marca, model, culoare, an) {
+  if (marca === "") {
+    return "Eroare: Marca nu poate fi goala sau formata doar din spatii.";
+  }
+  if (model === "") {
+    return "Eroare: Modelul nu poate fi gol sau format doar din spatii.";
+  }
+  if (culoare === "") {
+    return "Eroare: Culoarea nu poate fi goala sau formata doar din spatii.";
+  }
+  
+  var anCurent = new Date().getFullYear();
+  if (!Number.isInteger(an) || an < 1900 || an > anCurent) {
+    return "Eroare: Anul trebuie sa fie un numar intreg intre 1900 si " + anCurent + ".";
+  }
+  return "";
+}
+
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value.trim();
+  var model = document.getElementById("model").value.trim();
+  var culoare = document.getElementById("culoare").value.trim();
+  var an = Number(document.getElementById("anFab").value);
+
+  var eroare = valideaza(marca, model, culoare, an);
+  if (eroare !== "") {
+    document.getElementById("mesaj").innerText = eroare;
+    return false;
+  }
+
+  document.getElementById("mesaj").innerText = "";
+
+  var mNoua = new masina(marca, model, culoare, an);
+  document.getElementById("tm").innerHTML += mNoua.randNou();
+
+  masiniDate.push(mNoua);
+  localStorage.setItem("carsDataOnly", JSON.stringify(masiniDate));
+
+  return false;
+}
+
+function stergeToate() {
+  localStorage.removeItem("carsDataOnly");
+  masiniDate.length = 0;
+  document.getElementById("tm").innerHTML = "<tr><th>Marca</th><th>Model</th><th>Culoare</th><th>An fabricatie</th></tr>";
+  document.getElementById("mesaj").innerText = "";
+}
+</script>
+</body>
+</html>

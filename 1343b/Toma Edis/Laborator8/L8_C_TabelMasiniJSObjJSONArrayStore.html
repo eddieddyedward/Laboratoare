@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>L8_C - Tabel Masini (Tablou JSON)</title>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 15px;
+        }
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        #mesaj {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Masinile dorite</h2>
+
+    <form id="formMasina" onsubmit="return adaugaMasina()">
+        <input id="marca" placeholder="Marca" required>
+        <input id="model" placeholder="Model" required>
+        <input id="culoare" placeholder="Culoare" required>
+        <input id="anFab" type="number" placeholder="An fabricatie" required>
+        <button type="submit">Adauga masina</button>
+    </form>
+
+    <p id="mesaj"></p>
+
+    <table id="tm">
+        <tr>
+            <th>Marca</th>
+            <th>Model</th>
+            <th>Culoare</th>
+            <th>An fabricatie</th>
+        </tr>
+    </table>
+
+    <script>
+        var masini2Store = [];
+
+        if (localStorage.getItem("carsArray")) {
+            try {
+                masini2Store = JSON.parse(localStorage.getItem("carsArray"));
+                for (var i = 0; i < masini2Store.length; i++) {
+                    var item = masini2Store[i];
+                    if (item.randNou) {
+                        document.getElementById("tm").innerHTML += item.randNou;
+                    } else {
+                        document.getElementById("tm").innerHTML +=
+                            "<tr><td>" + item.marca + "</td><td>" + item.model +
+                            "</td><td>" + item.culoare + "</td><td>" + (item.anFab || "") + "</td></tr>";
+                    }
+                }
+            } catch (e) {
+                localStorage.removeItem("carsArray");
+                masini2Store = [];
+            }
+        }
+
+        function masina(mk, md, cl, an) {
+            this.marca = mk;
+            this.model = md;
+            this.culoare = cl;
+            this.anFab = an;
+            this.randNou = function() {
+                return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+            };
+        }
+
+        function valideaza(marca, model, culoare, an) {
+            if (marca.trim() === "" || model.trim() === "" || culoare.trim() === "") {
+                return "Marca, modelul si culoarea nu pot fi goale sau formate doar din spatii!";
+            }
+            var anNumar = Number(an);
+            var anCurent = new Date().getFullYear();
+            if (!Number.isInteger(anNumar) || anNumar < 1900 || anNumar > anCurent) {
+                return "Anul fabricatiei trebuie sa fie un numar intreg intre 1900 si " + anCurent + "!";
+            }
+            return "";
+        }
+
+        function adaugaMasina() {
+            var marca = document.getElementById("marca").value;
+            var model = document.getElementById("model").value;
+            var culoare = document.getElementById("culoare").value;
+            var an = document.getElementById("anFab").value;
+
+            var eroare = valideaza(marca, model, culoare, an);
+            document.getElementById("mesaj").innerHTML = eroare;
+
+            if (eroare !== "") {
+                return false;
+            }
+
+            var mNoua = new masina(marca.trim(), model.trim(), culoare.trim(), Number(an));
+            document.getElementById("tm").innerHTML += mNoua.randNou();
+
+            mNoua.randNou = mNoua.randNou().toString();
+            masini2Store.push(mNoua);
+            localStorage.setItem("carsArray", JSON.stringify(masini2Store));
+
+            document.getElementById("formMasina").reset();
+            return false;
+        }
+    </script>
+
+   <!--
+    masini2Store: o lista care pastreaza toate masinile adaugate cu .push() fara sa le stearga pe cele vechi
+    carsArray: cheia din localStorage in care se salveaza intreaga lista de masini ca text JSON
+    Bucla for de la incarcare: parcurge lista salvata in carsArray si afiseaza pe rand toate masinile in tabel in ordinea in care au fost adaugate
+    -->
+</body>
+</html>

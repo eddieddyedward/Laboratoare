@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>Tabel masini - Stocare separata atribute</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 15px;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+input, button {
+  padding: 6px 10px;
+  margin: 4px;
+}
+
+#mesaj {
+  font-weight: bold;
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+<h1>Masinile dorite</h1>
+
+<!-- Exercițiul 2: Formular in loc de prompt -->
+<form id="formMasina" onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+</form>
+
+<!-- Exercițiul 3: Paragraf pentru afisarea mesajelor de validare (fara alert) -->
+<p id="mesaj"></p>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+</table>
+
+<script>
+// Obiecte initiale create la fiecare incarcare
+var m1 = new masina("Opel", "Zafira", "gri", 2015);
+var m2 = new masina("Seat", "Ibiza", "roz", 2018);
+
+document.getElementById("tm").innerHTML += m1.randNou(); 
+document.getElementById("tm").innerHTML += m2.randNou(); 
+
+// Daca exista o masina salvata in Local Storage, o afisam in tabel
+if (localStorage.marca) {
+  var mNoua = new masina(
+    localStorage.marca,
+    localStorage.model,
+    localStorage.culoare,
+    localStorage.anFab
+  );
+  document.getElementById("tm").innerHTML += mNoua.randNou();
+}
+
+// Functie constructor masina cu proprietatea anFab si metoda randNou
+function masina(mk, md, cl, an) {
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+  this.randNou = function() {
+    return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+  };
+}
+
+// Exercițiul 3: Functia de validare
+function valideaza(marca, model, culoare, an) {
+  if (marca.trim() === "") {
+    return "Marca nu poate fi goală sau formată doar din spații.";
+  }
+  if (model.trim() === "") {
+    return "Modelul nu poate fi gol sau format doar din spații.";
+  }
+  if (culoare.trim() === "") {
+    return "Culoarea nu poate fi goală sau formată doar din spații.";
+  }
+  var anNum = Number(an);
+  var anCurent = new Date().getFullYear();
+  if (!Number.isInteger(anNum) || anNum < 1900 || anNum > anCurent) {
+    return "Anul trebuie să fie un număr întreg între 1900 și " + anCurent + ".";
+  }
+  return ""; // Fara eroare
+}
+
+// Functia de adaugare masina din formular
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value;
+  var model = document.getElementById("model").value;
+  var culoare = document.getElementById("culoare").value;
+  var an = document.getElementById("anFab").value;
+
+  var eroare = valideaza(marca, model, culoare, an);
+  var pMesaj = document.getElementById("mesaj");
+
+  if (eroare !== "") {
+    pMesaj.textContent = eroare;
+    pMesaj.style.color = "red";
+    return false; // Opreste adaugarea si salvarea daca datele nu sunt valide
+  }
+
+  // La o adaugare reusita, mesajul de eroare dispare
+  pMesaj.textContent = "";
+
+  var mNoua = new masina(marca.trim(), model.trim(), culoare.trim(), Number(an));
+  document.getElementById("tm").innerHTML += mNoua.randNou();
+
+  // Salvare in Local Storage (proprietati separate)
+  localStorage.setItem("marca", marca.trim());
+  localStorage.setItem("model", model.trim());
+  localStorage.setItem("culoare", culoare.trim());
+  localStorage.setItem("anFab", Number(an));
+
+  document.getElementById("formMasina").reset();
+  return false; // Formularul nu reincarca pagina
+}
+</script>
+
+<!--
+Observatii si explicatii Ex 1-3:
+1. Exercițiul 1:
+   - Cele doua masini (Opel, Seat) apar mereu la reincarcare deoarece sunt declarate direct in codul JavaScript.
+   - Fiecare masina nou adaugata se salveaza in 4 chei separate (marca, model, culoare, anFab); o noua salvare le suprascrie pe cele vechi, astfel ca dupa reincarcare apare doar ultima masina salvata.
+   - Functia constructor 'masina' beneficiaza de mecanismul de 'hoisting' (declaratiile de functii sunt ridicate la inceputul scriptului de interpretorul JS).
+
+2. Exercițiul 2:
+   - Datele se introduc prin formular HTML (required, type="number"), fara ferestre prompt.
+   - S-a adaugat anul de fabricatie (in formular, constructor si coloana noua in tabel).
+   - 'onsubmit="return adaugaMasina()"' previne reincarcarea paginii prin 'return false'.
+
+3. Exercițiul 3:
+   - Validarea verifica daca textul contine doar spatii (cu .trim()) si daca anul este intreg intre 1900 si anul curent (obtinut dinamic cu new Date().getFullYear()).
+   - Erorile se afiseaza in paragraful '#mesaj' (fara alert), iar la salvare reusita mesajul se sterge.
+-->
+</body>
+</html>

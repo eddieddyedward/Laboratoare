@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini - Doar Date</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+.danger {
+  background-color: red;
+  color: white;
+  margin-top: 20px;
+}
+</style>
+</head>
+<body>
+<h1 > Masinile dorite (Varianta curata cu Prototip)</h1>
+
+<form onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+</form>
+
+<p id="mesaj" style="color: red; font-weight: bold;"></p>
+
+<table id="tm">
+  <tbody id="corpTabel">
+    <tr>
+      <th>Marca</th>
+      <th>Model</th>
+      <th>Culoare</th>
+      <th>An fabricatie</th>
+    </tr>
+  </tbody>
+</table>
+
+<button class="danger" type="button" onclick="stergeToate()">Sterge toate</button>
+
+<script>
+// Array-ul nostru care va tine masinile in memorie curenta
+let masini2Store = [];
+
+// Constructorul pastreaza fix datele, atat. Nicio functie!
+function masina(mk, md, cl, an){
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+}
+
+// Aici e smecheria! Punem functia in prototip. 
+// JSON.stringify ignora prototipurile, deci salvam un JSON foarte curat, doar cu date.
+masina.prototype.randNou = function() {
+  return "<tr><td>" + this.marca +"</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+};
+
+// Functie sa afisam tot array-ul in tabel
+function refaceTabelul() {
+  var corp = "<tr><th>Marca</th><th>Model</th><th>Culoare</th><th>An fabricatie</th></tr>";
+  for(let i=0; i < masini2Store.length; i++) {
+    corp += masini2Store[i].randNou(); // acum au metoda randNou activa
+  }
+  document.getElementById("corpTabel").innerHTML = corp;
+}
+
+// Incarcam datele din Local Storage cand intram pe pagina
+if(localStorage.getItem("carsArrayClean")) {
+  let arrayJSON = localStorage.getItem("carsArrayClean");
+  let masiniStored = JSON.parse(arrayJSON);
+  
+  // masiniStored este un array cu obiecte simple, amorfe (doar date, fara metode).
+  // Trebuie sa le inviem folosind 'new masina()'
+  for(let i=0; i < masiniStored.length; i++){
+    let mObj = masiniStored[i];
+    let mRecreata = new masina(mObj.marca, mObj.model, mObj.culoare, mObj.anFab);
+    masini2Store.push(mRecreata);
+  }
+  refaceTabelul();
+}
+
+// Functia de validare
+function valideaza(marca, model, culoare, an) {
+  if (marca.trim() === "" || model.trim() === "" || culoare.trim() === "") {
+    return "Completeaza campurile text cuvinte reale, nu doar spatii.";
+  }
+  var anCurent = new Date().getFullYear();
+  var anNumar = Number(an);
+  if (!Number.isInteger(anNumar) || anNumar < 1900 || anNumar > anCurent) {
+    return "Anul de fabricatie este invalid.";
+  }
+  return ""; 
+}
+
+// Adaugarea masinii noi
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value;
+  var model = document.getElementById("model").value;
+  var culoare = document.getElementById("culoare").value;
+  var an = document.getElementById("anFab").value;
+
+  var eroare = valideaza(marca, model, culoare, an);
+  if (eroare !== "") {
+    document.getElementById("mesaj").innerHTML = eroare;
+    return false;
+  } else {
+    document.getElementById("mesaj").innerHTML = "";
+  }
+
+  // Cream obiectul (automat preia metoda din prototip)
+  var mNoua = new masina(marca, model, culoare, an);
+  
+  // Il bagam in lista si salvam in Local Storage
+  masini2Store.push(mNoua);
+  localStorage.setItem("carsArrayClean", JSON.stringify(masini2Store));
+
+  // Actualizam afisajul
+  refaceTabelul();
+
+  return false; // Nu dam refresh la pagina
+}
+
+// Butonul de curatenie generala
+function stergeToate() {
+  // Golem localStorage
+  localStorage.removeItem("carsArrayClean");
+  // Golem array-ul curent
+  masini2Store = [];
+  // Refacem tabelul (care o sa ramana doar cu headerele)
+  refaceTabelul();
+}
+</script>
+
+</body>
+</html>

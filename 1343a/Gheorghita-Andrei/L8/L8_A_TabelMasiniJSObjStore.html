@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tabel masini</title>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1> Masinile dorite </h1>
+
+
+    <form onsubmit="return valideaza_masina();">
+        <input id="marca" placeholder="Marca" required>
+        <input id="model" placeholder="Model" required>
+        <input id="culoare" placeholder="Culoare" required>
+        <input id="anFab" type="number" placeholder="An fabricatie" required>
+        <button type="submit">Adauga masina</button>
+    </form>
+
+    <p id="mesaj">
+
+        <table id="tm">
+            <tr>
+                <th>Marca</th>
+                <th>Model</th>
+                <th>Culoare</th>
+                <th>An fabricatie</th>
+            </tr>
+        </table>
+    </p>
+    <script>
+
+        var m1 = new masina("Opel", "Zafira", "gri",2015);
+        var m2 = new masina("Seat", "Ibiza", "roz",2018);
+        document.getElementById("tm").innerHTML += m1.randNou();
+        document.getElementById("tm").innerHTML +=  m2.randNou();
+
+        if (localStorage.marca) {
+        var mNoua = new masina(localStorage.marca, localStorage.model, localStorage.culoare, localStorage.anFab);
+        document.getElementById("tm").innerHTML += mNoua.randNou();
+        }
+
+        function masina(mk, md, cl, an){
+        this.marca= mk;
+        this.model = md;
+        this.culoare = cl;
+        this.anFab = an;
+        this.randNou = function() {return "<tr><td>" + this.marca +"</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>"};
+        }
+
+        function adaugaMasina() {
+        var marca= document.getElementById("marca").value;
+        var model= document.getElementById("model").value;
+        var culoare= document.getElementById("culoare").value;
+        var anFab= document.getElementById("anFab").value;
+        var mNoua = new masina(marca, model, culoare, anFab);
+
+        document.getElementById("tm").innerHTML +=  mNoua.randNou();
+        localStorage.setItem("marca", marca);
+        localStorage.setItem("model", model);
+        localStorage.setItem("culoare", culoare);
+        localStorage.setItem("anFab", anFab);
+        return false;
+        }
+
+        function valideaza_masina() {
+        var marca = document.getElementById("marca").value.trim();
+        var model = document.getElementById("model").value.trim();
+        var culoare = document.getElementById("culoare").value.trim();
+        var anFab = parseInt(document.getElementById("anFab").value);
+        var anCurent = new Date().getFullYear();
+        if (marca === "" || model === "" || culoare === "") {
+        document.getElementById("mesaj").innerText = "Marca, modelul si culoarea nu pot fi goale.";
+        return false;
+        }
+        if (isNaN(anFab) || anFab < 1900 || anFab > anCurent) {
+        document.getElementById("mesaj").innerText = "Anul de fabricatie trebuie sa fie intre 1900 si " + anCurent + ".";
+        return false;
+        }
+
+        // Daca datele sunt corecte, se adauga masina si se salveaza in localStorage
+        var mNoua = new masina(marca, model, culoare, anFab);
+        document.getElementById("tm").innerHTML += mNoua.randNou();
+
+        // Salvarea datelor in localStorage
+        localStorage.setItem("marca", marca);
+        localStorage.setItem("model", model);
+        localStorage.setItem("culoare", culoare);
+        localStorage.setItem("anFab", anFab);
+
+        document.getElementById("mesaj").innerText = "";
+
+        return false; // Prevenim trimiterea formularului
+        }
+
+        // afisare masini in tabelul creat in HTML cu datele introduse in formular
+        function afisareMasini() {
+        var marca = localStorage.getItem("marca");
+        var model = localStorage.getItem("model");
+        var culoare = localStorage.getItem("culoare");
+        var anFab = localStorage.getItem("anFab");
+        if (marca && model && culoare && anFab) {
+        var mNoua = new masina(marca, model, culoare, anFab);
+        document.getElementById("tm").innerHTML += mNoua.randNou();
+        }
+        }
+
+    </script>
+</body>
+</html>
+

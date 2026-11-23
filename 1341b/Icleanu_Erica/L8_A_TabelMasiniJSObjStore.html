@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 15px;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+#mesaj {
+  color: red;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.form-group {
+  margin-bottom: 10px;
+}
+
+label {
+  display: inline-block;
+  width: 110px;
+}
+</style>
+</head>
+<body>
+
+<h1>Masinile dorite</h1>
+
+<!-- Formularul în loc de prompt -->
+<div id="formular">
+  <div class="form-group">
+    <label for="inputMarca">Marca:</label>
+    <input type="text" id="inputMarca">
+  </div>
+  <div class="form-group">
+    <label for="inputModel">Model:</label>
+    <input type="text" id="inputModel">
+  </div>
+  <div class="form-group">
+    <label for="inputCuloare">Culoare:</label>
+    <input type="text" id="inputCuloare">
+  </div>
+  <div class="form-group">
+    <label for="inputAn">An fabricație:</label>
+    <input type="number" id="inputAn">
+  </div>
+  
+  <button onclick="adaugaMasina()">Adauga masina</button>
+</div>
+
+<!-- Paragraful pentru mesajul de eroare -->
+<p id="mesaj"></p>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricație</th>
+  </tr>
+</table>
+
+<script>
+// Constructorul actualizat cu anul de fabricație
+function masina(mk, md, cl, an){
+    this.marca = mk;
+    this.model = md;
+    this.culoare = cl;
+    this.anFab = an;
+    this.randNou = function() {
+        return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+    };
+}
+
+// Mașini predefinite
+var m1 = new masina("Opel", "Zafira", "gri", 2010);
+var m2 = new masina("Seat", "Ibiza", "roz", 2018);
+
+document.getElementById("tm").innerHTML += m1.randNou(); 
+document.getElementById("tm").innerHTML += m2.randNou(); 
+
+// Preluarea din localStorage ca obiect JSON sub cheia "masinaN"
+if(localStorage.masinaN) {
+    try {
+        var masinaJSON = localStorage.masinaN;
+        var mParcurs = JSON.parse(masinaJSON);
+        
+        // Reconstruim obiectul pentru a apela corect metoda randNou()
+        var mNoua = new masina(mParcurs.marca, mParcurs.model, mParcurs.culoare, mParcurs.anFab);
+        document.getElementById("tm").innerHTML += mNoua.randNou();
+    } catch(e) {
+        console.error("Eroare la parsarea JSON-ului:", e);
+    }
+}
+
+// Funcția de validare cerută în indicație
+function valideaza(marca, model, culoare, an) {
+    if (!marca || marca.trim() === "") {
+        return "Marca nu poate fi goală sau formată doar din spații.";
+    }
+    if (!model || model.trim() === "") {
+        return "Modelul nu poate fi gol sau format doar din spații.";
+    }
+    if (!culoare || culoare.trim() === "") {
+        return "Culoarea nu poate fi goală sau formată doar din spații.";
+    }
+
+    var anCurent = new Date().getFullYear();
+    var anNumar = Number(an);
+    
+    if (isNaN(anNumar) || !Number.isInteger(anNumar) || anNumar < 1900 || anNumar > anCurent) {
+        return "Anul trebuie să fie un număr întreg între 1900 și " + anCurent + ".";
+    }
+
+    return "";
+}
+
+function adaugaMasina() {
+    var pMesaj = document.getElementById("mesaj");
+
+    // Preluarea valorilor din inputuri
+    var marca = document.getElementById("inputMarca").value;
+    var model = document.getElementById("inputModel").value;
+    var culoare = document.getElementById("inputCuloare").value;
+    var an = document.getElementById("inputAn").value;
+
+    // Apelarea funcției de validare
+    var mesajEroare = valideaza(marca, model, culoare, an);
+
+    if (mesajEroare !== "") {
+        // Dacă datele nu sunt corecte, afișăm mesajul în paragraf și oprim execuția
+        pMesaj.innerText = mesajEroare;
+        return;
+    }
+
+    // La o adăugare reușită, mesajul de eroare dispare
+    pMesaj.innerText = "";
+
+    // Creăm obiectul și îl adăugăm în tabel
+    var mNoua = new masina(marca.trim(), model.trim(), culoare.trim(), Number(an));
+    document.getElementById("tm").innerHTML += mNoua.randNou(); 
+
+    // Salvăm obiectul JSON în localStorage sub cheia "masinaN"
+    var myJSON = JSON.stringify(mNoua);
+    localStorage.setItem("masinaN", myJSON);
+}
+</script>
+
+</body>
+</html>

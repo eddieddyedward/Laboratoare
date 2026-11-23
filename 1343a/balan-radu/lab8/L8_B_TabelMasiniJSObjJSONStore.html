@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+<h1 > Masinile dorite </h1>
+
+<form onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+</form>
+<p id="mesaj" style="color: red"></p>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+</table>
+
+<script>
+var m1 = new masina("Opel", "Zafira", "gri", 2015);
+var m2 = new masina("Seat", "Ibiza", "roz", 2018);
+
+document.getElementById("tm").innerHTML += m1.randNou();
+document.getElementById("tm").innerHTML += m2.randNou();
+
+if (localStorage.masinaN) {
+  var masinaJSON = localStorage.masinaN;
+  var mNoua = JSON.parse(masinaJSON);
+  document.getElementById("tm").innerHTML += mNoua.randNou;
+}
+
+function masina(mk, md, cl, an) {
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+  this.randNou = function() {
+    return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+  };
+}
+
+function valideaza(marca, model, culoare, an) {
+  var anCurent = new Date().getFullYear();
+  if (marca == "") {
+    return "Marca nu poate fi goala.";
+  }
+  if (model == "") {
+    return "Modelul nu poate fi gol.";
+  }
+  if (culoare == "") {
+    return "Culoarea nu poate fi goala.";
+  }
+  if (!Number.isInteger(an) || an < 1900 || an > anCurent) {
+    return "Anul trebuie sa fie un numar intreg intre 1900 si " + anCurent + ".";
+  }
+  return "";
+}
+
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value.trim();
+  var model = document.getElementById("model").value.trim();
+  var culoare = document.getElementById("culoare").value.trim();
+  var an = Number(document.getElementById("anFab").value);
+
+  var eroare = valideaza(marca, model, culoare, an);
+  document.getElementById("mesaj").innerHTML = eroare;
+  if (eroare != "") {
+    return false;
+  }
+
+  var mNoua = new masina(marca, model, culoare, an);
+  document.getElementById("tm").innerHTML += mNoua.randNou();
+
+  mNoua.randNou = mNoua.randNou().toString();
+  var myJSON = JSON.stringify(mNoua);
+  localStorage.setItem("masinaN", myJSON);
+
+  return false;
+}
+</script>
+<!--
+Exercitiul 4
+
+a) Dupa adaugarea unei masini, cheia masinaN contine un singur text JSON cu tot obiectul, de exemplu:
+{"marca":"Dacia","model":"Renault","culoare":"Rosie","randNou":"<tr><td>Dacia</td><td>Renault</td><td>Rosie</td></tr>"}
+Pe langa marca, model si culoare, contine si proprietatea randNou, care acum este textul HTML al randului de tabel, nu o functie.
+
+b) JSON.stringify omite functiile. Daca randNou ar ramane metoda, in JSON ar ajunge doar marca, model si culoare.
+Linia mNoua.randNou = mNoua.randNou().toString(); apeleaza metoda o data si pune in locul ei textul randului, iar textul ajunge in JSON.
+Fara aceasta linie, masinaN ar fi {"marca":"Dacia","model":"Renault","culoare":"Rosie"}, iar la reincarcare mNoua.randNou ar fi undefined.
+In pagina ar aparea textul "undefined" in loc de randul masinii.
+
+c) JSON.parse intoarce un obiect simplu, nu un obiect masina, deci nu are metode. randNou este acum un text (proprietate), nu o functie.
+De aceea se scrie mNoua.randNou, fara paranteze. Cu paranteze, mNoua.randNou() ar da eroarea "mNoua.randNou is not a function".
+
+d) Dupa reincarcare apare tot o singura masina adaugata, ultima, ca la L8_A.
+Diferenta este ca L8_A foloseste trei chei separate (marca, model, culoare), iar L8_B foloseste o singura cheie, masinaN, cu tot obiectul in JSON.
+In ambele cazuri, fiecare masina noua o suprascrie pe cea salvata inainte.
+-->
+</body>
+</html>

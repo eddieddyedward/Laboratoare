@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 15px;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+.form-container {
+  margin-bottom: 20px;
+}
+
+.form-container input {
+  margin-right: 10px;
+  padding: 5px;
+}
+</style>
+</head>
+<body>
+<h1> Masinile dorite </h1>
+
+<div class="form-container">
+  <label>Marca: <input type="text" id="in_marca"></label>
+  <label>Model: <input type="text" id="in_model"></label>
+  <label>Culoare: <input type="text" id="in_culoare"></label>
+  <label>An: <input type="text" id="in_an"></label>
+  <button onclick="adaugaMasina()"> Adauga masina</button>
+</div>
+
+<p id="mesaj" style="color: red; font-weight: bold;"></p>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An</th>
+  </tr>
+</table>
+
+<script>
+/*
+Ce aduce nou L8_C față de L8_B:
+1. masini2Store: Este un vector (array) care stochează toate mașinile adăugate, permițând salvarea unei liste întregi, nu doar a ultimei mașini.
+2. cheia carsArray: Este noua cheie din Local Storage sub care se salvează întregul vector serializat în format JSON.
+3. Bucla de la încărcare (for): La reîncărcarea paginii, parcurge vectorul extras din Local Storage, reconstruiește vizual fiecare rând în tabel (folosind proprietatea randNou salvată) și repopulează vectorul masini2Store ca să nu se piardă mașinile vechi la următoarea adăugare.
+*/
+
+const masini2Store = [];
+
+if(localStorage.carsArray) {
+    let arrayJSON = localStorage.carsArray;
+    var masiniStored = JSON.parse(arrayJSON);
+    for(var i = 0; i < masiniStored.length; i++){
+        document.getElementById("tm").innerHTML += masiniStored[i].randNou; 
+        masini2Store.push(masiniStored[i]);
+    }
+}
+
+function valideaza(marca, model, culoare, an) {
+    if (!marca || marca.trim() === "") return "Eroare: Marca nu poate fi goala.";
+    if (!model || model.trim() === "") return "Eroare: Modelul nu poate fi gol.";
+    if (!culoare || culoare.trim() === "") return "Eroare: Culoarea nu poate fi goala.";
+    
+    if (!an || an.trim() === "") return "Eroare: Anul nu poate fi gol.";
+    var anInt = parseInt(an);
+    var anulCurent = new Date().getFullYear();
+    
+    if (isNaN(anInt) || anInt < 1900 || anInt > anulCurent) {
+        return "Eroare: Anul trebuie sa fie un numar intre 1900 si " + anulCurent + ".";
+    }
+    
+    return "";
+}
+
+function masina(mk, md, cl, an){
+    this.marca = mk;
+    this.model = md;
+    this.culoare = cl;
+    this.an = an;
+    this.randNou = function() {
+        return "<tr><td>" + this.marca +"</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.an + "</td></tr>";
+    }
+}
+
+function adaugaMasina() {
+    var marca = document.getElementById("in_marca").value;
+    var model = document.getElementById("in_model").value;
+    var culoare = document.getElementById("in_culoare").value;
+    var an = document.getElementById("in_an").value;
+
+    var eroare = valideaza(marca, model, culoare, an);
+
+    if (eroare !== "") {
+        document.getElementById("mesaj").innerHTML = eroare;
+        return;
+    }
+
+    document.getElementById("mesaj").innerHTML = "";
+
+    var mNoua = new masina(marca, model, culoare, an);
+    document.getElementById("tm").innerHTML += mNoua.randNou(); 
+
+    mNoua.randNou = mNoua.randNou().toString();
+    masini2Store.push(mNoua);
+    
+    var myJSON = JSON.stringify(masini2Store);
+    localStorage.setItem("carsArray", myJSON);
+
+    document.getElementById("in_marca").value = "";
+    document.getElementById("in_model").value = "";
+    document.getElementById("in_culoare").value = "";
+    document.getElementById("in_an").value = "";
+}
+</script>
+</body>
+</html>

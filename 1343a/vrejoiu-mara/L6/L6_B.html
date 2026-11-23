@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>L6_B</title>
+</head>
+<body>
+
+    <button type="button" id="butt" onclick="interschimbare()">Apasa aici</button>
+    <p id="p1" onclick="schimbare1()">Primul paragraf</p>
+    <p id="p2">Al doilea paragraf</p>
+
+    <script>
+    // Utilizati getElementById() !
+
+    par1 = document.getElementById("p1");
+    par2 = document.getElementById("p2");
+
+    function schimbare1()
+    {
+        var text = prompt("Introduceti noul text al paragrafului:", "Text initial");
+        if (text !== null && text !== "")
+        {
+            par1.innerHTML = text;
+        }
+    }
+
+    function interschimbare()
+    {
+        var aux = par1.innerHTML;
+        par1.innerHTML = par2.innerHTML;
+        par2.innerHTML = aux;
+    }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>Tabel masini - Doar date (Bonus)</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 15px;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+input, button {
+  padding: 6px 10px;
+  margin: 4px;
+}
+
+#mesaj {
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.btn-sterge {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-sterge:hover {
+  background-color: #d32f2f;
+}
+</style>
+</head>
+<body>
+<h1>Masinile dorite - Doar date (Bonus)</h1>
+
+<!-- Formular pentru adaugarea unei masini noi -->
+<form id="formMasina" onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+  <button type="button" class="btn-sterge" onclick="stergeToate()">Sterge toate</button>
+</form>
+
+<!-- Paragraf pentru afisarea mesajelor de validare sau status -->
+<p id="mesaj"></p>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+</table>
+
+<script>
+// Tabloul in care tinem obiectele masinilor in memorie
+const masini2Store = [];
+
+// Functie constructor masina - retine DOAR datele (fara metoda directa pe instanta)
+function masina(mk, md, cl, an) {
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+}
+
+// Metoda randNou pe prototype: se defineste o singura data pentru toate obiectele.
+// Avantaj: JSON.stringify nu o serializeaza, pastrand in Local Storage DOAR datele pure!
+masina.prototype.randNou = function() {
+  return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+};
+
+// La incarcare: citim doar datele din Local Storage si reconstituim obiectele cu 'new masina'
+if (localStorage.carsData) {
+  let arrayJSON = localStorage.carsData;
+  var masiniStored = JSON.parse(arrayJSON);
+  for (var i = 0; i < masiniStored.length; i++) {
+    var m = masiniStored[i];
+    // Recreem obiectul complet cu new masina pentru a avea acces la masina.prototype.randNou()
+    var objMasina = new masina(m.marca, m.model, m.culoare, m.anFab);
+    document.getElementById("tm").innerHTML += objMasina.randNou();
+    masini2Store.push(objMasina);
+  }
+}
+
+// Functia de validare
+function valideaza(marca, model, culoare, an) {
+  if (marca.trim() === "") {
+    return "Marca nu poate fi goală sau formată doar din spații.";
+  }
+  if (model.trim() === "") {
+    return "Modelul nu poate fi gol sau format doar din spații.";
+  }
+  if (culoare.trim() === "") {
+    return "Culoarea nu poate fi goală sau formată doar din spații.";
+  }
+  var anNum = Number(an);
+  var anCurent = new Date().getFullYear();
+  if (!Number.isInteger(anNum) || anNum < 1900 || anNum > anCurent) {
+    return "Anul trebuie să fie un număr întreg între 1900 și " + anCurent + ".";
+  }
+  return "";
+}
+
+// Adaugarea unei masini
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value;
+  var model = document.getElementById("model").value;
+  var culoare = document.getElementById("culoare").value;
+  var an = document.getElementById("anFab").value;
+
+  var eroare = valideaza(marca, model, culoare, an);
+  var pMesaj = document.getElementById("mesaj");
+
+  if (eroare !== "") {
+    pMesaj.textContent = eroare;
+    pMesaj.style.color = "red";
+    return false;
+  }
+
+  pMesaj.textContent = "";
+
+  var mNoua = new masina(marca.trim(), model.trim(), culoare.trim(), Number(an));
+
+  // Afisam in tabel prin apelul metodei de pe prototip
+  document.getElementById("tm").innerHTML += mNoua.randNou();
+
+  // Adaugam obiectul in tablou
+  masini2Store.push(mNoua);
+
+  // Salvam tabloul in Local Storage. JSON.stringify include doar proprietatile proprii (marca, model, culoare, anFab)
+  localStorage.setItem("carsData", JSON.stringify(masini2Store));
+
+  document.getElementById("formMasina").reset();
+  return false;
+}
+
+// Butonul „Sterge toate”: goleste tabelul si cheia din Local Storage
+function stergeToate() {
+  localStorage.removeItem("carsData");
+  masini2Store.length = 0; // Golim tabloul din memorie
+  // Resetam tabelul pastrand doar capul de tabel
+  document.getElementById("tm").innerHTML = "<tr><th>Marca</th><th>Model</th><th>Culoare</th><th>An fabricatie</th></tr>";
+  var pMesaj = document.getElementById("mesaj");
+  pMesaj.textContent = "Toate mașinile au fost șterse din tabel și din Local Storage.";
+  pMesaj.style.color = "blue";
+}
+</script>
+
+<!--
+Explicatii Exercițiul bonus (L8_D vs L8_C):
+1. Separarea datelor de prezentare:
+   - In L8_C, fiecare obiect salva si bucata de HTML ("<tr><td>...</td></tr>") in proprietatea randNou.
+   - In L8_D, metoda randNou este definita pe 'masina.prototype', deci apartine prototipului si NU este serializata de JSON.stringify.
+   - In Local Storage se salveaza doar date pure: [{"marca":"Dacia","model":"Logan","culoare":"albastru","anFab":2020}, ...].
+
+2. Reconstituirea cu 'new':
+   - La reincarcare, datele parsate din JSON sunt trecute din nou prin constructorul 'new masina(...)'.
+   - Obiectul nou creat dobandeste automat toate metodele de pe prototip.
+
+3. Avantajul major daca se modifica structura tabelului:
+   - In L8_C: daca se schimba designul tabelului (ex. se schimba ordinea coloanelor sau se adauga stiluri), datele vechi raman blocate in formatul vechi salvat ca string.
+   - In L8_D: deoarece se salveaza doar datele, la orice modificare in 'masina.prototype.randNou()', TOATE masinile (si cele vechi, si cele noi) vor fi generate si afisate uniform conform noului format.
+-->
+</body>
+</html>

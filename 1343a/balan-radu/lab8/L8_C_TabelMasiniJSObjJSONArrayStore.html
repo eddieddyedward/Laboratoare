@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+<h1 > Masinile dorite </h1>
+
+<form onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+</form>
+<p id="mesaj" style="color: red"></p>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricatie</th>
+  </tr>
+</table>
+
+<script>
+const masini2Store = [];
+
+if (localStorage.carsArray) {
+  let arrayJSON = localStorage.carsArray;
+  var masiniStored = JSON.parse(arrayJSON);
+  for (var i = 0; i < masiniStored.length; i++) {
+    document.getElementById("tm").innerHTML += masiniStored[i].randNou;
+    masini2Store.push(masiniStored[i]);
+  }
+}
+
+function masina(mk, md, cl, an) {
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+  this.randNou = function() {
+    return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+  };
+}
+
+function valideaza(marca, model, culoare, an) {
+  var anCurent = new Date().getFullYear();
+  if (marca == "") {
+    return "Marca nu poate fi goala.";
+  }
+  if (model == "") {
+    return "Modelul nu poate fi gol.";
+  }
+  if (culoare == "") {
+    return "Culoarea nu poate fi goala.";
+  }
+  if (!Number.isInteger(an) || an < 1900 || an > anCurent) {
+    return "Anul trebuie sa fie un numar intreg intre 1900 si " + anCurent + ".";
+  }
+  return "";
+}
+
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value.trim();
+  var model = document.getElementById("model").value.trim();
+  var culoare = document.getElementById("culoare").value.trim();
+  var an = Number(document.getElementById("anFab").value);
+
+  var eroare = valideaza(marca, model, culoare, an);
+  document.getElementById("mesaj").innerHTML = eroare;
+  if (eroare != "") {
+    return false;
+  }
+
+  var mNoua = new masina(marca, model, culoare, an);
+  document.getElementById("tm").innerHTML += mNoua.randNou();
+
+  mNoua.randNou = mNoua.randNou().toString();
+  masini2Store.push(mNoua);
+  var myJSON = JSON.stringify(masini2Store);
+  localStorage.setItem("carsArray", myJSON);
+
+  return false;
+}
+</script>
+<!--
+Exercitiul 6
+
+Ce aduce nou L8_C fata de L8_B:
+
+1. Tabloul masini2Store. In L8_B se pastra o singura masina. In L8_C, masini2Store este un tablou (array) care tine in memorie toate masinile: cele citite din Local Storage la incarcare si cele adaugate acum. Fiecare masina noua se adauga la sfarsitul lui cu push.
+
+2. Cheia carsArray. In loc de un obiect (masinaN), in Local Storage se salveaza tot tabloul, ca un singur text JSON:
+[{"marca":"Dacia","model":"Logan","culoare":"Albastra","randNou":"<tr><td>Dacia</td><td>Logan</td><td>Albastra</td></tr>"},{"marca":"Dac","model":"San","culoare":"Verde","anFab":2021,"randNou":"<tr><td>Dac</td><td>San</td><td>Verde</td><td>2021</td></tr>"}]
+Prima masina a fost salvata cu pagina originala, fara anFab, iar randul ei are doar 3 coloane. Ramane asa in tablou, pentru ca randNou e salvat ca text gata facut.
+La fiecare adaugare se rescrie cheia cu tabloul complet, deci nicio masina nu se pierde.
+
+3. Bucla de la incarcare. JSON.parse intoarce un tablou de obiecte simple. Bucla for trece prin fiecare: adauga in tabel randNou (text, fara paranteze, ca la L8_B) si pune masina inapoi in masini2Store.
+Fara push in bucla, masini2Store ar porni gol, iar prima adaugare dupa reincarcare ar salva doar masina noua si le-ar sterge pe cele vechi.
+
+Rezultat: dupa reincarcare apar toate masinile adaugate, in ordinea adaugarii. La L8_A si L8_B ramanea doar ultima.
+In plus, L8_C nu mai creeaza in cod masinile Opel si Seat; tabelul contine doar masinile salvate.
+-->
+</body>
+</html>

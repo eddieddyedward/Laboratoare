@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Garaj</title>
+
+    <script>
+        function citesteGaraj() {
+            var text = localStorage.getItem("garaj");
+
+            if (text == null) {
+                return [];
+            }
+
+            return JSON.parse(text);
+        }
+
+        function adaugaMasina() {
+            var masina = {
+                tip: document.getElementById("tip").value,
+                model: document.getElementById("model").value,
+                culoare: document.getElementById("culoare").value,
+                anFab: document.getElementById("anFab").value
+            };
+
+            var garaj = citesteGaraj();
+
+            garaj.push(masina);
+
+            localStorage.setItem("garaj", JSON.stringify(garaj));
+
+            document.getElementById("formular").reset();
+
+            afiseazaGaraj();
+
+            return false;
+        }
+
+        function stergeMasina(i) {
+            var garaj = citesteGaraj();
+
+            garaj.splice(i, 1);
+
+            localStorage.setItem("garaj", JSON.stringify(garaj));
+
+            afiseazaGaraj();
+        }
+
+        function afiseazaGaraj() {
+            var garaj = citesteGaraj();
+
+            var html = "";
+
+            html += "<table border='1' cellpadding='10'>";
+            html += "<tr>";
+            html += "<th>Tip</th>";
+            html += "<th>Model</th>";
+            html += "<th>Culoare</th>";
+            html += "<th>An fabricatie</th>";
+            html += "<th>Actiune</th>";
+            html += "</tr>";
+
+            for (var i = 0; i < garaj.length; i++) {
+
+                html += "<tr>";
+
+                html += "<td>" + garaj[i].tip + "</td>";
+                html += "<td>" + garaj[i].model + "</td>";
+                html += "<td>" + garaj[i].culoare + "</td>";
+                html += "<td>" + garaj[i].anFab + "</td>";
+
+                html += "<td>";
+                html += "<button onclick='stergeMasina(" + i + ")'>";
+                html += "Sterge";
+                html += "</button>";
+                html += "</td>";
+
+                html += "</tr>";
+            }
+
+            html += "</table>";
+
+            document.getElementById("garaj").innerHTML = html;
+
+            document.getElementById("numar").innerHTML =
+                "Numar de masini in garaj: " + garaj.length;
+        }
+    </script>
+</head>
+
+<body onload="afiseazaGaraj()">
+
+    <h1>Garaj</h1>
+
+    <form id="formular" onsubmit="return adaugaMasina()">
+
+        <label>Tip</label>
+        <input id="tip" required>
+
+        <label>Model</label>
+        <input id="model" required>
+
+        <label>Culoare</label>
+        <input id="culoare" required>
+
+        <label>An fabricatie</label>
+        <input id="anFab" type="number" required>
+
+        <button type="submit">Adauga masina</button>
+
+    </form>
+
+    <br>
+
+    <h3 id="numar"></h3>
+
+    <div id="garaj"></div>
+
+</body>
+</html>

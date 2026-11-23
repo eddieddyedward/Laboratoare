@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body>
+<h1 > Masinile dorite </h1>
+
+<p>
+<button onclick="adaugaMasina()";> Adauga masina</button>
+<table id="tm">
+<tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+  </tr>
+  
+</table>
+</p>
+<script>
+const masini2Store = [];
+if(localStorage.carsArray) {
+let arrayJSON = localStorage.carsArray;
+var masiniStored = JSON.parse(arrayJSON);
+for(i=0; i < masiniStored.length ; i++){
+document.getElementById("tm").innerHTML += masiniStored[i].randNou; // proprietate 
+masini2Store.push(masiniStored[i]);
+}
+}
+
+
+
+function masina(mk, md, cl){
+this.marca= mk;
+this.model = md;
+this.culoare = cl;
+this.randNou = function() {return "<tr><td>" + this.marca +"</td><td>" + this.model + "</td><td>" + this.culoare + "</td></tr>"}
+}
+
+function adaugaMasina() {
+var marca= prompt("Marca:");
+var model= prompt("Model:");
+var culoare= prompt("Culoare:");
+var mNoua = new masina(marca, model, culoare);
+document.getElementById("tm").innerHTML +=  mNoua.randNou(); 
+
+mNoua.randNou = 	mNoua.randNou().toString();
+masini2Store.push(mNoua);
+var myJSON = JSON.stringify(masini2Store);
+localStorage.setItem("carsArray", myJSON);
+}
+</script>
+</body>
+</html>

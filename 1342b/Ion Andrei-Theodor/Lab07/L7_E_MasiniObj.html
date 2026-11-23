@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Masini Obiecte</title>
+
+    <script>
+        function loadMjs() {
+            var mJS = {
+                tip: "Dacia",
+                model: "Logan",
+                culoare: "Verde",
+                anFab: 2012
+            };
+
+            afiseazaMasina(mJS, "mjs");
+        }
+
+        function afiseazaMasina(masina, id) {
+            document.getElementById(id).innerHTML =
+                "Tip: " + masina.tip + "<br>" +
+                "Model: " + masina.model + "<br>" +
+                "Culoare: " + masina.culoare + "<br>" +
+                "An fabricatie: " + masina.anFab;
+        }
+
+        function afiseaza(depozit, id) {
+            var text = depozit.getItem("masina");
+
+            if (text == null) {
+                document.getElementById(id).innerHTML =
+                    "Nicio masina salvata";
+            } else {
+                var masina = JSON.parse(text);
+                afiseazaMasina(masina, id);
+            }
+        }
+
+        function salveazaMls() {
+            var masina = {
+                tip: document.getElementById("tipL").value,
+                model: document.getElementById("modelL").value,
+                culoare: document.getElementById("culoareL").value,
+                anFab: document.getElementById("anL").value
+            };
+
+            localStorage.setItem("masina", JSON.stringify(masina));
+
+            afiseaza(localStorage, "mls");
+
+            return false;
+        }
+
+        function salveazaMss() {
+            var masina = {
+                tip: document.getElementById("tipS").value,
+                model: document.getElementById("modelS").value,
+                culoare: document.getElementById("culoareS").value,
+                anFab: document.getElementById("anS").value
+            };
+
+            sessionStorage.setItem("masina", JSON.stringify(masina));
+
+            afiseaza(sessionStorage, "mss");
+
+            return false;
+        }
+
+        function sterge(depozit, id) {
+            depozit.removeItem("masina");
+            afiseaza(depozit, id);
+        }
+
+        function loadMls() {
+            afiseaza(localStorage, "mls");
+        }
+
+        function loadMss() {
+            afiseaza(sessionStorage, "mss");
+        }
+
+        function initializeaza() {
+            loadMjs();
+            loadMls();
+            loadMss();
+        }
+    </script>
+</head>
+
+<body onload="initializeaza()">
+
+    <h1>Masina JavaScript</h1>
+    <div id="mjs"></div>
+
+    <hr>
+
+    <div style="background-color:ForestGreen;color:white;font-size:150%;padding:15px">
+
+        <p>Masina Local Storage</p>
+
+        <form onsubmit="return salveazaMls()">
+
+            <label>Tip</label>
+            <input id="tipL" required>
+
+            <label>Model</label>
+            <input id="modelL" required>
+
+            <label>Culoare</label>
+            <input id="culoareL" required>
+
+            <label>An fabricatie</label>
+            <input id="anL" type="number" required>
+
+            <button type="submit">Salveaza</button>
+
+            <button type="button"
+                onclick="sterge(localStorage,'mls')">
+                Sterge
+            </button>
+
+        </form>
+
+        <div id="mls"></div>
+
+    </div>
+
+    <br>
+
+    <div style="background-color:SeaGreen;color:white;font-size:150%;padding:15px">
+
+        <p>Masina Session Storage</p>
+
+        <form onsubmit="return salveazaMss()">
+
+            <label>Tip</label>
+            <input id="tipS" required>
+
+            <label>Model</label>
+            <input id="modelS" required>
+
+            <label>Culoare</label>
+            <input id="culoareS" required>
+
+            <label>An fabricatie</label>
+            <input id="anS" type="number" required>
+
+            <button type="submit">Salveaza</button>
+
+            <button type="button"
+                onclick="sterge(sessionStorage,'mss')">
+                Sterge
+            </button>
+
+        </form>
+
+        <div id="mss"></div>
+
+    </div>
+
+</body>
+</html>

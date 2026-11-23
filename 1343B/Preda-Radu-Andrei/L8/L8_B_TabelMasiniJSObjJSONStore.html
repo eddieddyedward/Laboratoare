@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini - Exercițiul 5</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 20px;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+form {
+  margin-bottom: 20px;
+}
+
+label {
+  display: inline-block;
+  width: 110px;
+  margin-bottom: 10px;
+}
+
+#mesaj {
+  color: rgb(21, 255, 0);
+  font-weight: bold;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+
+<h1>Masinile dorite</h1>
+
+<form onsubmit="return adaugaMasina();">
+  <div>
+    <label for="marca">Marca:</label>
+    <input type="text" id="marca">
+  </div>
+  <div>
+    <label for="model">Model:</label>
+    <input type="text" id="model">
+  </div>
+  <div>
+    <label for="culoare">Culoare:</label>
+    <input type="text" id="culoare">
+  </div>
+  <div>
+    <label for="anFab">An fabricație:</label>
+    <input type="text" id="anFab">
+  </div>
+  <button type="submit">Adauga masina</button>
+
+  <p id="mesaj"></p>
+</form>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An fabricație</th>
+  </tr>
+</table>
+
+<script>
+function masina(mk, md, cl, an) {
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+  this.randNou = function() {
+    return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+  };
+}
+
+var m1 = new masina("Opel", "Zafira", "gri", 2015);
+var m2 = new masina("Seat", "Ibiza", "roz", 2018);
+
+document.getElementById("tm").innerHTML += m1.randNou(); 
+document.getElementById("tm").innerHTML += m2.randNou(); 
+
+if (localStorage.masinaN) {
+  var masinaJSON = localStorage.masinaN;
+  var mNoua = JSON.parse(masinaJSON);
+  document.getElementById("tm").innerHTML += mNoua.randNou;
+}
+
+function valideaza(marca, model, culoare, an) {
+  if (marca.trim() === "" || model.trim() === "" || culoare.trim() === "") {
+    return "Eroare: Marca, modelul si culoarea nu pot fi goale!";
+  }
+
+  var anCurent = new Date().getFullYear();
+  var anNumar = Number(an);
+
+  if (!Number.isInteger(anNumar) || anNumar < 1900 || anNumar > anCurent || an.trim() === "") {
+    return "Eroare: Anul de fabricatie trebuie sa fie un numar întreg între 1900 si " + anCurent + "!";
+  }
+
+  return ""; 
+}
+
+function adaugaMasina() {
+  var marca = document.getElementById("marca").value;
+  var model = document.getElementById("model").value;
+  var culoare = document.getElementById("culoare").value;
+  var an = document.getElementById("anFab").value;
+
+  var pMesaj = document.getElementById("mesaj");
+
+  var eroare = valideaza(marca, model, culoare, an);
+
+  if (eroare !== "") {
+    pMesaj.innerText = eroare;
+    return false; 
+  }
+
+  pMesaj.innerText = "";
+
+  var mNoua = new masina(marca, model, culoare, an);
+  document.getElementById("tm").innerHTML += mNoua.randNou(); 
+
+  mNoua.randNou = mNoua.randNou().toString();
+  var myJSON = JSON.stringify(mNoua);
+  localStorage.setItem("masinaN", myJSON);
+
+  return false;
+}
+</script>
+
+</body>
+</html>
+
+<!--ex4 a) Cheia masinaN contine un sir de caractere JSON care reprezinta obiectul mNoua serializat, care contine proprietatile masinii
+ + propr randNou convertita in sir de text -->
+<!--ex4 b) Functia JSON.stringify() serializeaza datele unui obiect dar ignora functiile. 
+Prin aceasta functie, functia randNou este executata pe loc si rezultatul ei este salvat in proprietatea
+ mNoua.randNou - o transforma din functie in sir de caractere.
+Fara ea, proprietatea randNou ar ramane o functie, care ar fi ignorata de JSON.stringify()-->
+<!--ex4 c) randNou nu mai este functie, ci este de tip string, care se acceseaza direct-->
+<!--ex4 d) in ambele cazuri, dupa reincarcare, apare o singura masina adaugata (ultima) -->

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini - doar date</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+#mesaj { color: red; }
+</style>
+</head>
+<body>
+<h1>Masinile dorite</h1>
+
+<form id="formMasina" onsubmit="return adaugaMasina()">
+  <input id="marca" placeholder="Marca" required>
+  <input id="model" placeholder="Model" required>
+  <input id="culoare" placeholder="Culoare" required>
+  <input id="anFab" type="number" placeholder="An fabricatie" required>
+  <button type="submit">Adauga masina</button>
+</form>
+<button onclick="stergeToate()">Sterge toate</button>
+<p id="mesaj"></p>
+
+<table id="tm"></table>
+
+<script>
+const CAP_TABEL = "<tr><th>Marca</th><th>Model</th><th>Culoare</th><th>An fabricatie</th></tr>";
+const masini = [];
+
+function masina(mk, md, cl, an) {
+  this.marca = mk;
+  this.model = md;
+  this.culoare = cl;
+  this.anFab = an;
+}
+// metoda definita o singura data, pe prototip -> JSON.stringify nu o vede
+masina.prototype.randNou = function() {
+  return "<tr><td>" + this.marca + "</td><td>" + this.model +
+         "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+};
+
+document.getElementById("tm").innerHTML = CAP_TABEL;
+
+if (localStorage.carsData) {
+  var date = JSON.parse(localStorage.carsData);
+  for (let i = 0; i < date.length; i++) {
+    // obiect simplu -> obiect masina, ca sa aiba iar metoda randNou()
+    var m = new masina(date[i].marca, date[i].model, date[i].culoare, date[i].anFab);
+    masini.push(m);
+    document.getElementById("tm").innerHTML += m.randNou();
+  }
+}
+
+function valideaza(marca, model, culoare, an) {
+  var anCurent = new Date().getFullYear();
+  if (marca === "")   return "Marca nu poate fi goala sau formata doar din spatii.";
+  if (model === "")   return "Modelul nu poate fi gol sau format doar din spatii.";
+  if (culoare === "") return "Culoarea nu poate fi goala sau formata doar din spatii.";
+  if (!Number.isInteger(an) || an < 1900 || an > anCurent)
+    return "Anul trebuie sa fie un numar intreg intre 1900 si " + anCurent + ".";
+  return "";
+}
+
+function adaugaMasina() {
+  var marca   = document.getElementById("marca").value.trim();
+  var model   = document.getElementById("model").value.trim();
+  var culoare = document.getElementById("culoare").value.trim();
+  var an      = Number(document.getElementById("anFab").value);
+
+  var eroare = valideaza(marca, model, culoare, an);
+  if (eroare !== "") {
+    document.getElementById("mesaj").innerHTML = eroare;
+    return false;
+  }
+  document.getElementById("mesaj").innerHTML = "";
+
+  var mNoua = new masina(marca, model, culoare, an);
+  masini.push(mNoua);
+  document.getElementById("tm").innerHTML += mNoua.randNou();
+  // se salveaza doar datele: {"marca":..,"model":..,"culoare":..,"anFab":..}
+  localStorage.setItem("carsData", JSON.stringify(masini));
+
+  document.getElementById("formMasina").reset();
+  return false;
+}
+
+function stergeToate() {
+  masini.length = 0;
+  localStorage.removeItem("carsData");
+  document.getElementById("tm").innerHTML = CAP_TABEL;
+  document.getElementById("mesaj").innerHTML = "";
+}
+</script>
+</body>
+</html>
+
+<!--
+Bonus: In L8_C se salveaza HTML-ul randului, deci daca schimb forma randului (ex. o coloana noua),
+masinile salvate deja raman cu forma veche. In L8_D se salveaza doar datele, iar randul se
+construieste la fiecare incarcare cu randNou(), deci toate masinile primesc automat forma noua.
+-->

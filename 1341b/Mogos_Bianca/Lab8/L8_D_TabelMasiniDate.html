@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>L8_D - Gestionare Mașini cu Local Storage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form {
+            background: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #ccc;
+            max-width: 400px;
+        }
+        div.form-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: inline-block;
+            width: 80px;
+        }
+        input {
+            padding: 5px;
+        }
+        button {
+            padding: 8px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Gestionare Mașini - Date în Local Storage</h1>
+
+    <form id="formMasina">
+        <div class="form-group">
+            <label for="marca">Marcă:</label>
+            <input type="text" id="marca" required>
+        </div>
+        <div class="form-group">
+            <label for="model">Model:</label>
+            <input type="text" id="model" required>
+        </div>
+        <div class="form-group">
+            <label for="culoare">Culoare:</label>
+            <input type="text" id="culoare" required>
+        </div>
+        <div class="form-group">
+            <label for="an">An:</label>
+            <input type="number" id="an" required>
+        </div>
+        <button type="submit">Adaugă Mașină</button>
+        <button type="button" id="btnStergeTot">Șterge toate</button>
+    </form>
+
+    <table id="tabelMasini">
+        <thead>
+            <tr>
+                <th>Marcă</th>
+                <th>Model</th>
+                <th>Culoare</th>
+                <th>An</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+    </table>
+
+    <script>
+        function Masina(marca, model, culoare, an) {
+            this.marca = marca;
+            this.model = model;
+            this.culoare = culoare;
+            this.an = an;
+        }
+
+        Masina.prototype.randNou = function() {
+            const tbody = document.querySelector("#tabelMasini tbody");
+            const rand = document.createElement("tr");
+            
+            rand.innerHTML = `
+                <td>${this.marca}</td>
+                <td>${this.model}</td>
+                <td>${this.culoare}</td>
+                <td>${this.an}</td>
+            `;
+            
+            tbody.appendChild(rand);
+        };
+
+        function salveazaInLocalStorage(masini) {
+            localStorage.setItem("masiniDate", JSON.stringify(masini));
+        }
+
+        function incarcaDinLocalStorage() {
+            const dateSalvate = localStorage.getItem("masiniDate");
+            if (!dateSalvate) return [];
+
+            const dateBrute = JSON.parse(dateSalvate);
+            let masini = [];
+
+            for (let i = 0; i < dateBrute.length; i++) {
+                let d = dateBrute[i];
+                let m = new Masina(d.marca, d.model, d.culoare, d.an);
+                masini.push(m);
+                m.randNou();
+            }
+
+            return masini;
+        }
+
+        let listaMasini = [];
+
+        window.onload = function() {
+            listaMasini = incarcaDinLocalStorage();
+        };
+
+        document.getElementById("formMasina").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const marca = document.getElementById("marca").value;
+            const model = document.getElementById("model").value;
+            const culoare = document.getElementById("culoare").value;
+            const an = document.getElementById("an").value;
+
+            const masinaNoua = new Masina(marca, model, culoare, an);
+            
+            listaMasini.push(masinaNoua);
+            masinaNoua.randNou();
+
+            salveazaInLocalStorage(listaMasini);
+
+            this.reset();
+        });
+
+        document.getElementById("btnStergeTot").addEventListener("click", function() {
+            localStorage.removeItem("masiniDate");
+            listaMasini = [];
+            document.querySelector("#tabelMasini tbody").innerHTML = "";
+        });
+    </script>
+
+</body>
+</html>

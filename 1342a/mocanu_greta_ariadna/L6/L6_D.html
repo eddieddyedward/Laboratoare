@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Laborator 6 - Galerie Foto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: #f9f9f9;
+        }
+
+
+        #imagineCurenta {
+            display: block;
+            margin: 0 auto 15px auto;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            object-fit: cover;
+        }
+
+        .controale {
+            margin: 15px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 8px;
+            border: none;
+            border-radius: 6px;
+            background-color: #ac45d4;
+            color: #ffffff;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #6a128d;
+        }
+
+        #indicator {
+            font-size: 16px;
+            font-weight: bold;
+            color: #444;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <h2>Galerie Foto</h2>
+
+        <img id="imagineCurenta" src="Img/pisici.jpg" alt="Galerie foto" width="360" height="270">
+
+        <div class="controale">
+            <button id="btnInapoi">&laquo; Înapoi</button>
+            <button id="btnInainte">Înainte &raquo;</button>
+        </div>
+
+        <p id="indicator">Imaginea 1 din 4</p>
+    </div>
+
+    <script>
+        var imagini = [
+            "Img/pisici.jpg",
+            "Img/mare.jpg",
+            "Img/munti.jpg",
+            "Img/caini.jpg"
+        ];
+
+        var indexCurent = 0;
+
+        var imgElement = document.getElementById("imagineCurenta");
+        var textIndicator = document.getElementById("indicator");
+        var btnInapoi = document.getElementById("btnInapoi");
+        var btnInainte = document.getElementById("btnInainte");
+
+        function actualizeazaGalerie() {
+            imgElement.src = imagini[indexCurent];
+            textIndicator.innerHTML = "Imaginea " + (indexCurent + 1) + " din " + imagini.length;
+        }
+
+        btnInainte.onclick = function () {
+            indexCurent = (indexCurent + 1) % imagini.length;
+            actualizeazaGalerie();
+        };
+
+        btnInapoi.onclick = function () {
+            indexCurent = (indexCurent - 1 + imagini.length) % imagini.length;
+            actualizeazaGalerie();
+        };
+    </script>
+
+</body>
+</html>

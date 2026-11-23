@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>L8_D - Tabel Mașini Date</title>
+</head>
+<body>
+
+    <h2>Adăugare mașini</h2>
+
+    <label>Marca:</label>
+    <input type="text" id="marca"><br><br>
+
+    <label>Model:</label>
+    <input type="text" id="model"><br><br>
+
+    <label>Culoare:</label>
+    <input type="text" id="culoare"><br><br>
+
+    <label>An fabricație:</label>
+    <input type="number" id="anFab"><br><br>
+
+    <button onclick="adaugaMasina()">Adaugă mașina</button>
+    <button onclick="stergeToate()">Șterge toate</button>
+
+    <br><br>
+
+    <table border="1" id="tabelMasini">
+        <thead>
+            <tr>
+                <th>Marca</th>
+                <th>Model</th>
+                <th>Culoare</th>
+                <th>An fabricație</th>
+            </tr>
+        </thead>
+        <tbody id="corpTabel">
+        </tbody>
+    </table>
+
+    <script>
+        // Tabloul care păstrează obiectele mașinilor
+        let masini2Store = [];
+
+        // Constructorul obiectelor de tip masina
+        function masina(marca, model, culoare, anFab) {
+            this.marca = marca;
+            this.model = model;
+            this.culoare = culoare;
+            this.anFab = anFab;
+        }
+
+        // Metoda definită o singură dată pentru toate obiectele
+        masina.prototype.randNou = function () {
+            return `<tr>
+                <td>${this.marca}</td>
+                <td>${this.model}</td>
+                <td>${this.culoare}</td>
+                <td>${this.anFab}</td>
+            </tr>`;
+        };
+
+        // Adăugarea unei mașini în tabel și în Local Storage
+        function adaugaMasina() {
+            let marca = document.getElementById("marca").value;
+            let model = document.getElementById("model").value;
+            let culoare = document.getElementById("culoare").value;
+            let anFab = document.getElementById("anFab").value;
+
+            if (!marca || !model || !culoare || !anFab) {
+                alert("Completați toate câmpurile!");
+                return;
+            }
+
+            let mNoua = new masina(marca, model, culoare, anFab);
+
+            masini2Store.push(mNoua);
+
+            document.getElementById("corpTabel").innerHTML +=
+                mNoua.randNou();
+
+            // Se salvează doar datele mașinilor, nu și rândurile HTML
+            localStorage.setItem(
+                "carsArray",
+                JSON.stringify(masini2Store)
+            );
+
+            // Golirea câmpurilor
+            document.getElementById("marca").value = "";
+            document.getElementById("model").value = "";
+            document.getElementById("culoare").value = "";
+            document.getElementById("anFab").value = "";
+        }
+
+        // Încărcarea mașinilor salvate
+        function incarcaMasini() {
+            let masiniStored = localStorage.getItem("carsArray");
+
+            if (masiniStored) {
+                let dateMasini = JSON.parse(masiniStored);
+
+                for (let i = 0; i < dateMasini.length; i++) {
+
+                    // Reconstruirea obiectului cu ajutorul constructorului
+                    let mNoua = new masina(
+                        dateMasini[i].marca,
+                        dateMasini[i].model,
+                        dateMasini[i].culoare,
+                        dateMasini[i].anFab
+                    );
+
+                    masini2Store.push(mNoua);
+
+                    // Generarea din nou a rândului HTML
+                    document.getElementById("corpTabel").innerHTML +=
+                        mNoua.randNou();
+                }
+            }
+        }
+
+        // Ștergerea tuturor mașinilor
+        function stergeToate() {
+            masini2Store = [];
+
+            document.getElementById("corpTabel").innerHTML = "";
+
+            localStorage.removeItem("carsArray");
+        }
+
+        // Apelarea funcției la încărcarea paginii
+        window.onload = incarcaMasini;
+
+    </script>
+
+</body>
+</html>

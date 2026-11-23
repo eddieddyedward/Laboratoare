@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabel masini</title>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 15px;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+.form-container {
+  margin-bottom: 20px;
+}
+
+.form-container input {
+  margin-right: 10px;
+  padding: 5px;
+}
+</style>
+</head>
+<body>
+<h1> Masinile dorite </h1>
+
+<div class="form-container">
+  <label>Marca: <input type="text" id="in_marca"></label>
+  <label>Model: <input type="text" id="in_model"></label>
+  <label>Culoare: <input type="text" id="in_culoare"></label>
+  <label>An: <input type="text" id="in_an"></label>
+  <button onclick="adaugaMasina()"> Adauga masina</button>
+</div>
+
+<p id="mesaj" style="color: red; font-weight: bold;"></p>
+
+<table id="tm">
+  <tr>
+    <th>Marca</th>
+    <th>Model</th>
+    <th>Culoare</th>
+    <th>An</th>
+  </tr>
+</table>
+
+<script>
+var m1 = new masina("Opel", "Zafira", "gri", 2010);
+var m2 = new masina("Seat", "Ibiza", "roz", 2015);
+
+document.getElementById("tm").innerHTML += m1.randNou(); 
+document.getElementById("tm").innerHTML += m2.randNou(); 
+
+if(localStorage.masinaN) {
+    var masinaJSON = localStorage.masinaN;
+    var mNouaStocata = JSON.parse(masinaJSON);
+
+    document.getElementById("tm").innerHTML += mNouaStocata.randNou; 
+}
+
+function valideaza(marca, model, culoare, an) {
+    if (!marca || marca.trim() === "") return "Eroare: Marca nu poate fi goala.";
+    if (!model || model.trim() === "") return "Eroare: Modelul nu poate fi gol.";
+    if (!culoare || culoare.trim() === "") return "Eroare: Culoarea nu poate fi goala.";
+    
+    if (!an || an.trim() === "") return "Eroare: Anul nu poate fi gol.";
+    var anInt = parseInt(an);
+    var anulCurent = new Date().getFullYear();
+    
+    if (isNaN(anInt) || anInt < 1900 || anInt > anulCurent) {
+        return "Eroare: Anul trebuie sa fie un numar intre 1900 si " + anulCurent + ".";
+    }
+    
+    return "";
+}
+
+function masina(mk, md, cl, an){
+    this.marca = mk;
+    this.model = md;
+    this.culoare = cl;
+    this.an = an;
+    this.randNou = function() {
+        return "<tr><td>" + this.marca +"</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.an + "</td></tr>";
+    };
+}
+
+function adaugaMasina() {
+    var marca = document.getElementById("in_marca").value;
+    var model = document.getElementById("in_model").value;
+    var culoare = document.getElementById("in_culoare").value;
+    var an = document.getElementById("in_an").value;
+
+    var eroare = valideaza(marca, model, culoare, an);
+
+    if (eroare !== "") {
+        document.getElementById("mesaj").innerHTML = eroare;
+        return;
+    }
+
+    document.getElementById("mesaj").innerHTML = "";
+
+    var mNoua = new masina(marca, model, culoare, an);
+
+    document.getElementById("tm").innerHTML += mNoua.randNou(); 
+
+    mNoua.randNou = mNoua.randNou().toString();
+    
+    var myJSON = JSON.stringify(mNoua);
+    localStorage.setItem("masinaN", myJSON);
+
+    document.getElementById("in_marca").value = "";
+    document.getElementById("in_model").value = "";
+    document.getElementById("in_culoare").value = "";
+    document.getElementById("in_an").value = "";
+}
+</script>
+</body>
+</html>

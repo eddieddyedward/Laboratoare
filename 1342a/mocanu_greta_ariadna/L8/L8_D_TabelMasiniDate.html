@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Laboratorul 8 - Bonus (Doar Date in Local Storage)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 15px;
+        }
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input {
+            margin-right: 5px;
+            padding: 5px;
+        }
+        button {
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+        #mesaj {
+            color: red;
+            font-weight: bold;
+        }
+        #btnSterge {
+            background-color: #c856e7;
+            color: white;
+            border: none;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Masinile dorite (Bonus)</h1>
+
+    <form onsubmit="return adaugaMasina()">
+        <input id="marca" placeholder="Marca" required>
+        <input id="model" placeholder="Model" required>
+        <input id="culoare" placeholder="Culoare" required>
+        <input id="anFab" type="number" placeholder="An fabricatie" required>
+        <button type="submit">Adauga masina</button>
+    </form>
+
+    <p id="mesaj"></p>
+
+    <table id="tm">
+        <tr>
+            <th>Marca</th>
+            <th>Model</th>
+            <th>Culoare</th>
+            <th>An fabricatie</th>
+        </tr>
+    </table>
+
+    <button id="btnSterge" onclick="stergeToate()">Sterge toate</button>
+
+    <script>
+        const masini2Store = [];
+
+        masina.prototype.randNou = function() {
+            return "<tr><td>" + this.marca + "</td><td>" + this.model + "</td><td>" + this.culoare + "</td><td>" + this.anFab + "</td></tr>";
+        };
+
+        function masina(mk, md, cl, an){
+            this.marca = mk;
+            this.model = md;
+            this.culoare = cl;
+            this.anFab = an;
+        }
+
+        if(localStorage.carsArrayBonus) {
+            let arrayJSON = localStorage.carsArrayBonus;
+            var masiniStored = JSON.parse(arrayJSON);
+            
+            for(var i = 0; i < masiniStored.length; i++) {
+                var mRecreata = new masina(
+                    masiniStored[i].marca, 
+                    masiniStored[i].model, 
+                    masiniStored[i].culoare, 
+                    masiniStored[i].anFab
+                );
+                
+                document.getElementById("tm").innerHTML += mRecreata.randNou(); 
+                masini2Store.push(mRecreata);
+            }
+        }
+
+        function valideaza(marca, model, culoare, an) {
+            if (marca.trim() === "" || model.trim() === "" || culoare.trim() === "") {
+                return "Completati marca, modelul si culoarea fara a folosi doar spatii.";
+            }
+            var anCurent = new Date().getFullYear();
+            if (!Number.isInteger(an) || an < 1900 || an > anCurent) {
+                return "Anul de fabricatie trebuie sa fie intre 1900 si " + anCurent + ".";
+            }
+            return "";
+        }
+
+        function citesteFormular() {
+            var marca = document.getElementById("marca").value;
+            var model = document.getElementById("model").value;
+            var culoare = document.getElementById("culoare").value;
+            var an = Number(document.getElementById("anFab").value);
+            
+            var eroare = valideaza(marca, model, culoare, an);
+            document.getElementById("mesaj").innerHTML = eroare;
+            
+            if (eroare !== "") {
+                return null;
+            }
+            
+            return new masina(marca.trim(), model.trim(), culoare.trim(), an);
+        }
+
+        function adaugaMasina() {
+            var mNoua = citesteFormular();
+            
+            if (mNoua !== null) {
+                document.getElementById("tm").innerHTML += mNoua.randNou(); 
+       
+                
+                var myJSON = JSON.stringify(masini2Store);
+                localStorage.setItem("carsArrayBonus", myJSON);
+                
+                document.getElementById("marca").value = "";
+                document.getElementById("model").value = "";
+                document.getElementById("culoare").value = "";
+                document.getElementById("anFab").value = "";
+            }
+            
+            return false; 
+        }
+
+        function stergeToate() {
+            localStorage.removeItem("carsArrayBonus");
+            
+            masini2Store.length = 0;
+            
+            document.getElementById("tm").innerHTML = "<tr><th>Marca</th><th>Model</th><th>Culoare</th><th>An fabricatie</th></tr>";
+        }
+    </script>
+    
+</body>
+</html>
